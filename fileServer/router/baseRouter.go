@@ -3,15 +3,16 @@ package router
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"prv/fileServer/controller"
 )
 
+var PORT = fmt.Sprint(":",os.Getenv("FS_PORT"))
 const(
 	BASE_PATH = "/fs"
 	ADD_FILE_PATH = "/addFile"
 	HEALTH = "/health"
 	UPLOAD_FILE_PATH = "/uploadFile"
-	PORT = ":8080"
 	GET_PAGINATED_PATH = "/getPaginated"
 	DOWNLOAD_FILE_BY_ID ="/downloadFileById"
 )
