@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fileServer/dao"
+	"fileServer/router"
 	"fmt"
-	"prv/fileServer/dao"
-	"prv/fileServer/router"
 )
 
 func init(){

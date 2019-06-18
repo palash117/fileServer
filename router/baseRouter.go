@@ -1,10 +1,10 @@
 package router
 
 import (
+	"fileServer/controller"
 	"fmt"
 	"net/http"
 	"os"
-	"prv/fileServer/controller"
 )
 
 var PORT = fmt.Sprint(":",os.Getenv("FS_PORT"))

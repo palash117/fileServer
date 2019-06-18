@@ -6,9 +6,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"prv/fileServer/dao"
-	"prv/fileServer/models"
-	"prv/fileServer/util"
+	"fileServer/dao"
+	"fileServer/models"
+	"fileServer/util"
 	"strconv"
 	"time"
 )

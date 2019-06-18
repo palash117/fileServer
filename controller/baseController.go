@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"prv/fileServer/dao"
-	"prv/fileServer/dto"
-	"prv/fileServer/models"
-	"prv/fileServer/service"
+	"fileServer/dao"
+	"fileServer/dto"
+	"fileServer/models"
+	"fileServer/service"
 )
 
 const(
