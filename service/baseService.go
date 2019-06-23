@@ -2,13 +2,13 @@ package service
 
 import (
 	"fmt"
+	"github.com/palash117/fileServer/dao"
+	"github.com/palash117/fileServer/models"
+	"github.com/palash117/fileServer/util"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"fileServer/dao"
-	"fileServer/models"
-	"fileServer/util"
 	"strconv"
 	"time"
 )

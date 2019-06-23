@@ -3,12 +3,12 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/palash117/fileServer/dao"
+	"github.com/palash117/fileServer/dto"
+	"github.com/palash117/fileServer/models"
+	"github.com/palash117/fileServer/service"
 	"io"
 	"net/http"
-	"fileServer/dao"
-	"fileServer/dto"
-	"fileServer/models"
-	"fileServer/service"
 )
 
 const(
@@ -50,3 +50,4 @@ func GetPaginatedItems(w http.ResponseWriter, r * http.Request){
 func DownloadFileById(w http.ResponseWriter, r *http.Request){
 	service.DownloadFileById(w , r)
 }
+

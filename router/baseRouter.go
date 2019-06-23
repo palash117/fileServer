@@ -1,8 +1,8 @@
 package router
 
 import (
-	"fileServer/controller"
 	"fmt"
+	"github.com/palash117/fileServer/controller"
 	"net/http"
 	"os"
 )
