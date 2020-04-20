@@ -39,6 +39,7 @@ func GetItemsPaginated(pageNo int, pageSize int) []models.Item {
 }
 
 func GetItemById(id int) *models.Item {
+
 	item := models.Item{}
 	dbInst.First(&item, id)
 	return &item
