@@ -1,27 +1,28 @@
 package service
 
 import (
+	"fileServer/dao"
+	"fileServer/models"
+	"fileServer/util"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"fileServer/dao"
-	"fileServer/models"
-	"fileServer/util"
 	"strconv"
 	"time"
 )
 
-var(
+var (
 	BASE_FILE_PATH = os.Getenv("FS_GO_BASE_PATH")
 )
-func UploadFileAndsaveToDb(w http.ResponseWriter, r *http.Request){
-	fileName,filePath, err := saveDataToFile(w, r)
-	if err!=nil{
+
+func UploadFileAndsaveToDb(w http.ResponseWriter, r *http.Request) {
+	fileName, filePath, err := saveDataToFile(w, r)
+	if err != nil {
 
 		fmt.Println(err)
-	}else {
+	} else {
 		item := (models.MakeItem(fileName, filePath, time.Now()))
 		dao.SaveItem(item)
 	}
@@ -35,9 +36,9 @@ func saveDataToFile(w http.ResponseWriter, r *http.Request) (fileName string, fi
 	// FormFile returns the first file for the given key `myFile`
 	// it also returns the FileHeader so we can get the Filename,
 	// the Header and the size of the file
-	keys := make([]string,0)
+	keys := make([]string, 0)
 
-	for key:= range r.MultipartForm.File{
+	for key := range r.MultipartForm.File {
 		keys = append(keys, key)
 	}
 
@@ -62,14 +63,14 @@ func saveDataToFile(w http.ResponseWriter, r *http.Request) (fileName string, fi
 		fmt.Println(err)
 	}
 
-	err = ioutil.WriteFile(BASE_FILE_PATH+ "/"+
+	err = ioutil.WriteFile(BASE_FILE_PATH+"/"+
 		handler.Filename, fileBytes, 0644)
 	if err != nil {
 		fmt.Println(err)
 		retErr = err
-	}else {
+	} else {
 		fileName = handler.Filename
-		filePath = BASE_FILE_PATH+ "/"+
+		filePath = BASE_FILE_PATH + "/" +
 			handler.Filename
 	}
 	// write this byte array to our temporary file
@@ -79,26 +80,26 @@ func saveDataToFile(w http.ResponseWriter, r *http.Request) (fileName string, fi
 }
 
 func DownloadFileById(w http.ResponseWriter, r *http.Request) {
-	id, err:=strconv.Atoi( r.URL.Query()["id"][0])
+	id, err := strconv.Atoi(r.URL.Query()["id"][0])
 	item := new(models.Item)
-	if err!=nil {
+	if err != nil {
 		io.WriteString(w, err.Error())
 		return
-	}else {
+	} else {
 		item = dao.GetItemById(id)
 	}
 	r.URL.Path = item.Path
-	file, err2:= os.Open(item.Path);
-	if err2!=nil{
+	file, err2 := os.Open(item.Path)
+	if err2 != nil {
 
 	}
 	fileExtn, fileExntError := util.GetFileExtn(item.Path)
-	if(fileExntError!=nil){
+	if fileExntError != nil {
 
 		io.WriteString(w, fileExntError.Error())
 		return
 	}
 	w.Header().Add("ContentType", util.MIME_MAP[fileExtn])
-	io.Copy(w,file)
+	io.Copy(w, file)
 
 }
