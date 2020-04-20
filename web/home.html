@@ -1,0 +1,67 @@
+<html>
+
+<head>
+    <script src="home.js"></script>
+    <style>
+        .uploadDiv {
+            background-color: rgba(211, 201, 219, 0.863);
+            height: 50%;
+        }
+
+        .filesDiv {
+            background-color: rgb(0, 217, 255);
+
+            overflow: auto;
+            overflow-x: hidden;
+            overflow-y: hidden;
+        }
+
+        .wrapperDiv {
+            height: 80%;
+            width: 80%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            box-shadow: 0px 10px 50px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .refreshButton {
+        }
+
+        .filesList {
+            overflow: scroll;
+            float: left;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css?family=Lato:100,300,600" rel="stylesheet" type="text/css">
+    <link href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" type="text/css">
+    <link type="text/css" rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+    <div id="wrapperDiv" class="wrapperDiv">
+        <div id="uploadDiv" class="uploadDiv">
+            <input type="file" id="uploadFile" multiple size="10" onchange="fileUpload()">
+        </div>
+        <div id="filesDiv" class="filesDiv">
+            <button name="filesRefresh" onclick="paintFiles()" class="refreshButton">refresh</button>
+            <div class="filesList">
+                <table id="filesTable" onload="paintFiles()" >
+                    <tr>
+                        <td>
+                            files ...
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
