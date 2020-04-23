@@ -28,7 +28,11 @@ function fileUpload() {
 
     formData.append("photo", photo);
     fetch('/fs/uploadFile', { method: "POST", body: formData })
-    .then(response=> response.text)
-    .then(alert("file uploaded"))
-    .catch(error=> console.log("error "+ error))
+        .then(response => response.text())
+        .then(text => {
+            alert("file uploaded with " + text)
+            fetchFiles(updateFiles)
+        }
+        )
+        .catch(error => console.log("error " + error))
 }

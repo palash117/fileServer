@@ -20,11 +20,12 @@ var (
 func UploadFileAndsaveToDb(w http.ResponseWriter, r *http.Request) {
 	fileName, filePath, err := saveDataToFile(w, r)
 	if err != nil {
-
 		fmt.Println(err)
+		fmt.Fprint(w, []byte("failure"))
 	} else {
 		item := (models.MakeItem(fileName, filePath, time.Now()))
 		dao.SaveItem(item)
+		fmt.Fprint(w, []byte("success"))
 	}
 
 }
@@ -102,4 +103,33 @@ func DownloadFileById(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("ContentType", util.MIME_MAP[fileExtn])
 	io.Copy(w, file)
 
+}
+
+func DeleteFileById(w http.ResponseWriter, r *http.Request) {
+	id, idRequestError := strconv.Atoi(r.URL.Query()["id"][0])
+	if idRequestError != nil {
+		fmt.Fprint(w, []byte("file not found"))
+	}
+	item := dao.GetItemById(id)
+	if item != nil {
+		if !item.DeletedAt.Valid {
+			dao.UpdateDeletedTime(item)
+			deleteFile(item.Path)
+
+		}
+	} else {
+
+		fmt.Fprint(w, []byte("file not found"))
+	}
+}
+
+func deleteFile(path string) {
+	// delete file
+	var err = os.Remove(path)
+	if err != nil {
+		fmt.Println("error while deleting file " + path)
+		return
+	}
+
+	fmt.Println("==> done deleting file")
 }

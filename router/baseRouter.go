@@ -18,6 +18,7 @@ const (
 	DOWNLOAD_FILE_BY_ID = "/downloadFileById"
 	HOME                = "/home"
 	SERVE               = "/serve/"
+	DELETE_FILE_BY_ID   = "/deleteFileById"
 )
 
 type handler struct {
@@ -41,6 +42,8 @@ func Start() {
 	http.Handle(BASE_PATH+GET_PAGINATED_PATH, handler{GET_PAGINATED_PATH, controller.GetPaginatedItems})
 
 	http.Handle(BASE_PATH+DOWNLOAD_FILE_BY_ID, handler{DOWNLOAD_FILE_BY_ID, controller.DownloadFileById})
+
+	http.Handle(BASE_PATH+DELETE_FILE_BY_ID, handler{DELETE_FILE_BY_ID, controller.DeleteFileById})
 
 	http.Handle(SERVE, http.StripPrefix(SERVE, http.FileServer(http.Dir("./web"))))
 	path, errx := os.Getwd()

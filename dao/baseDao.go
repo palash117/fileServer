@@ -4,7 +4,10 @@ import (
 	"fileServer/models"
 	"fmt"
 	"log"
+	"testing"
+	"time"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 )
 
@@ -43,4 +46,22 @@ func GetItemById(id int) *models.Item {
 	item := models.Item{}
 	dbInst.First(&item, id)
 	return &item
+}
+
+func UpdateDeletedTime(item *models.Item) {
+	deletedAt := mysql.NullTime{
+		Valid: true,
+		Time:  time.Now(),
+	}
+	dbInst.Model(&item).Updates(models.Item{DeletedAt: deletedAt})
+}
+
+func TestUpdateDeletedTime(t *testing.T) {
+	ReadyDb()
+	item := GetItemById(21)
+	UpdateDeletedTime(item)
+	item = GetItemById(21)
+	if !item.DeletedAt.Valid {
+		t.Fail()
+	}
 }
