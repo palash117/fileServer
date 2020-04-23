@@ -20,15 +20,24 @@ function updateFiles(files) {
             +'<td><a href="/fs/downloadFileById?id=' + files[i].Id + '" target="_blank">' 
             + files[i].FileName + '</a></td>'
             +'<td>'
-            +'<a href="/fs/deleteFileById?id=' + files[i].Id + '">'
-            +'<img src="./resources/delete_icon.png" width="25" height="25"></td>'
-            +'</a>'
+            //+'<a href="/fs/deleteFileById?id=' + files[i].Id + '">'
+            +'<img src="./resources/delete_icon.png" width="25" height="25" onclick="deleteFileById('+ files[i].Id+')"></td>'
             +'</tr>'
     }
     document.getElementById("filesTable").innerHTML = newFilesDiv
 }
 
-
+function deleteFileById(id){
+    console.log("deleting file with id "+ id)
+    fetch('/fs/deleteFileById?id='+id)
+        .then(response => {
+            return response.text()
+        })
+        .then(text => {
+            console.log(text)
+            fetchFiles(updateFiles)
+        })
+}
 function fileUpload() {
     var photo = document.getElementById("uploadFile").files[0];
     var formData = new FormData();
