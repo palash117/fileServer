@@ -16,7 +16,14 @@ function updateFiles(files) {
 
     var newFilesDiv = ""
     for (var i = 0; i < files.length; i++) {
-        newFilesDiv += '<tr><td><a href="/fs/downloadFileById?id=' + files[i].Id + '" target="_blank">' + files[i].FileName + "</a></td></tr>"
+        newFilesDiv += '<tr>'
+            +'<td><a href="/fs/downloadFileById?id=' + files[i].Id + '" target="_blank">' 
+            + files[i].FileName + '</a></td>'
+            +'<td>'
+            +'<a href="/fs/deleteFileById?id=' + files[i].Id + '">'
+            +'<img src="./resources/delete_icon.png" width="25" height="25"></td>'
+            +'</a>'
+            +'</tr>'
     }
     document.getElementById("filesTable").innerHTML = newFilesDiv
 }
