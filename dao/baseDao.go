@@ -16,7 +16,7 @@ var (
 )
 
 func ReadyDb() {
-	db, err := gorm.Open("mysql", "root:root@tcp(192.168.1.22:3306)/fs?charset=utf8&parseTime=True")
+	db, err := gorm.Open("mysql", "root:root@tcp(192.168.1.27:3306)/fs?charset=utf8&parseTime=True")
 	if err != nil {
 		log.Panic(err)
 	}
