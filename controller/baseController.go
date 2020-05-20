@@ -9,12 +9,18 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/websocket"
 )
 
 const (
 	BASE_FILE_PATH = "/Users/palash.sarkar/fsdownloads"
+)
+
+var (
+	PORT = os.Getenv("FS_PORT")
+	IP   = os.Getenv("FS_IP")
 )
 
 func AddFile(w http.ResponseWriter, req *http.Request) {
@@ -68,15 +74,7 @@ func PartUpload(w http.ResponseWriter, r *http.Request) {
 	service.StreamUpload(c)
 }
 
-func AppendToFileById(w http.ResponseWriter, r *http.Request, id int) error {
-	// get file item from db
-	savedFile := dao.GetItemById(id)
-	if savedFile == nil {
-		return fmt.Errorf("file not found with id %v", id)
-	}
+func GetLocalIP(w http.ResponseWriter, r *http.Request) {
 
-	// fetch bytes from stream
-	// open file using file path
-	// write bytes to file
-	return nil
+	w.Write([]byte(IP + ":" + PORT))
 }

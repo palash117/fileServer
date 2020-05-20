@@ -8,6 +8,7 @@ WORKDIR /build
 # RESOLVE DEPENDENCIES
 RUN go get github.com/go-sql-driver/mysql
 RUN go get github.com/jinzhu/gorm
+RUN go get github.com/gorilla/websocket
 
 # COPY ALL LOCAL PACKAGES FILES TO CONTAINER'S WORKSPACE.
 ADD . /go/src/fileServer
@@ -18,6 +19,7 @@ RUN go install fileServer/
 
 # ENVIRONMENT VARIABLES
 ENV FS_PORT=8082
+ENV FS_IP=192.168.1.10
 
 # DOCUMENT THAT THE SERVICE LISTENS ON PORT 8080
 EXPOSE 8082

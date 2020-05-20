@@ -32,7 +32,16 @@ function updateFiles(files) {
   }
   document.getElementById("filesTable").innerHTML = newFilesDiv;
 }
-
+function getOriginIp(func, filestruct) {
+  fetch("/fs/localIp")
+    .then((response) => {
+      return response.text();
+    })
+    .then((text) => {
+      console.log(text);
+      func(text, filestruct);
+    });
+}
 function deleteFileById(id) {
   console.log("deleting file with id " + id);
   fetch("/fs/deleteFileById?id=" + id)
@@ -73,7 +82,7 @@ function init() {
       console.log(fr.result.length);
       filestruct.size = fr.result.byteLength;
       filestruct.content = fr.result;
-      fileTransferByParts(filestruct);
+      getOriginIp(fileTransferByParts, filestruct);
     };
     filestruct = {
       name: this.files[0].name,
@@ -83,10 +92,10 @@ function init() {
   });
 }
 
-function fileTransferByParts(filestruct) {
+function fileTransferByParts(origin, filestruct) {
   console.log("sending file by parts");
   console.log(filestruct);
-  var exampleSocket = new WebSocket("ws://192.168.1.10:8083/fs/PartUpload");
+  var exampleSocket = new WebSocket("ws://" + origin + "/fs/PartUpload");
   metaInfoSent = false;
   index = 0;
 

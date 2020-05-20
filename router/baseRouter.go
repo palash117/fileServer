@@ -7,7 +7,9 @@ import (
 	"os"
 )
 
-var PORT = fmt.Sprint(":", os.Getenv("FS_PORT"))
+var (
+	PORT = fmt.Sprint(":", os.Getenv("FS_PORT"))
+)
 
 const (
 	BASE_PATH           = "/fs"
@@ -20,6 +22,7 @@ const (
 	SERVE               = "/serve/"
 	DELETE_FILE_BY_ID   = "/deleteFileById"
 	PART_FILE_UPLOAD    = "/PartUpload"
+	LOCAL_IP            = "/localIp"
 )
 
 type handler struct {
@@ -48,6 +51,8 @@ func Start() {
 	http.Handle(BASE_PATH+DELETE_FILE_BY_ID, handler{DELETE_FILE_BY_ID, controller.DeleteFileById})
 
 	http.Handle(BASE_PATH+PART_FILE_UPLOAD, handler{PART_FILE_UPLOAD, controller.PartUpload})
+
+	http.Handle(BASE_PATH+LOCAL_IP, handler{PART_FILE_UPLOAD, controller.GetLocalIP})
 
 	http.Handle(SERVE, http.StripPrefix(SERVE, http.FileServer(http.Dir("./web"))))
 	path, errx := os.Getwd()
