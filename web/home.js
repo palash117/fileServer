@@ -32,14 +32,14 @@ function updateFiles(files) {
   }
   document.getElementById("filesTable").innerHTML = newFilesDiv;
 }
-function getOriginIp(func, filestruct) {
+function getOriginIp(func, filestruct, afterFunc) {
   fetch("/fs/localIp")
     .then((response) => {
       return response.text();
     })
     .then((text) => {
       console.log(text);
-      func(text, filestruct);
+      func(text, filestruct, afterFunc);
     });
 }
 function deleteFileById(id) {
@@ -53,46 +53,47 @@ function deleteFileById(id) {
       fetchFiles(updateFiles);
     });
 }
-function fileUpload() {
-  wrapperPage.style.visibility = "hidden";
-  var file = document.getElementById("uploadFile").files[0];
-  var formData = new FormData();
-
-  formData.append("file", file);
-  fetch("/fs/uploadFile", { method: "POST", body: formData })
-    .then((response) => response.text())
-    .then((text) => {
-      wrapperPage.style.visibility = "visible";
-      refreshPage();
-    })
-    .catch((error) => console.log("error " + error));
+function fileUpload(event) {
+  console.log(event.files[0].name);
+  setWaitPage();
+  streamData(event, removeWaitPage);
 }
+function streamData(event, afterFunc) {
+  var fr = new FileReader();
+  fr.onload = function () {
+    console.log(fr.result);
+    console.log(fr.result.length);
+    filestruct.size = fr.result.byteLength;
+    filestruct.content = fr.result;
+    getOriginIp(fileTransferByParts, filestruct, afterFunc);
+  };
+  filestruct = {
+    name: event.files[0].name,
+    size: 0,
+  };
+  fr.readAsArrayBuffer(event.files[0]);
+}
+
 function refreshPage() {
   paintFiles();
+}
+function setWaitPage() {
+  wrapperPage.style.visibility = "hidden";
+}
+function removeWaitPage(func, event) {
+  wrapperPage.style.visibility = "visible";
+  refreshPage();
 }
 window.onload = init;
 function init() {
   wrapperPage = document.querySelector("#wrapperDiv");
   refreshPage();
-  document.getElementById("inputfile").addEventListener("change", function () {
-    var fr = new FileReader();
-    fr.onload = function () {
-      document.getElementById("output").textContent = fr.result;
-      console.log(fr.result);
-      console.log(fr.result.length);
-      filestruct.size = fr.result.byteLength;
-      filestruct.content = fr.result;
-      getOriginIp(fileTransferByParts, filestruct);
-    };
-    filestruct = {
-      name: this.files[0].name,
-      size: 0,
-    };
-    fr.readAsArrayBuffer(this.files[0]);
+  document.getElementById("uploadFile").addEventListener("change", function () {
+    fileUpload(this);
   });
 }
 
-function fileTransferByParts(origin, filestruct) {
+function fileTransferByParts(origin, filestruct, afterFunc) {
   console.log("sending file by parts");
   console.log(filestruct);
   var exampleSocket = new WebSocket("ws://" + origin + "/fs/PartUpload");
@@ -111,6 +112,9 @@ function fileTransferByParts(origin, filestruct) {
         index++;
         break;
     }
+  };
+  exampleSocket.onclose = function () {
+    afterFunc();
   };
 }
 function sendData(filestruct, websocketConn, index) {
