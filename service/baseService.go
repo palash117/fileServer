@@ -160,6 +160,7 @@ func StreamUpload(c *websocket.Conn) {
 		// save batches to file
 		AppendToFile(message, filePath)
 		// update client to send more
+		// time.Sleep(10 * time.Second)
 		c.WriteMessage(websocket.TextMessage, SEND_DATA)
 		byteCount += len(message)
 	}

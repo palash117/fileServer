@@ -1,5 +1,9 @@
 var wrapperPage;
 var PACKET_LIMIT = 1024 * 1024 * 10;
+var progresCompletedBar;
+var progressCompletedPercentage = 1;
+var progressCheckEnabled;
+
 function paintFiles() {
   fetchFiles(updateFiles);
 }
@@ -79,14 +83,20 @@ function refreshPage() {
 }
 function setWaitPage() {
   wrapperPage.style.visibility = "hidden";
+  resetProgress();
+  progressCheckEnabled = true;
+  progressCompletedPercentage = 1;
+  startProgressCheck();
 }
 function removeWaitPage(func, event) {
+  progressCheckEnabled = false;
   wrapperPage.style.visibility = "visible";
   refreshPage();
 }
 window.onload = init;
 function init() {
   wrapperPage = document.querySelector("#wrapperDiv");
+  progresCompletedBar = document.querySelector(".statusCompleted");
   refreshPage();
   document.getElementById("uploadFile").addEventListener("change", function () {
     fileUpload(this);
@@ -109,6 +119,9 @@ function fileTransferByParts(origin, filestruct, afterFunc) {
     switch (event.data) {
       case "SEND_DATA":
         sendData(filestruct, exampleSocket, index);
+        progressCompletedPercentage =
+          (index * PACKET_LIMIT * 100) / filestruct.size;
+        progressCompletedPercentage = Math.floor(progressCompletedPercentage);
         index++;
         break;
     }
@@ -145,3 +158,17 @@ for i := 0; i <= len(message)/limit; i++ {
 		AppendToFile(messagePart, filename)
 	}
 */
+function resetProgress() {
+  progresCompletedBar.style.width = "1%";
+}
+
+function startProgressCheck() {
+  setTimeout(progressChecker, 100);
+}
+
+function progressChecker() {
+  progresCompletedBar.style.width = "" + progressCompletedPercentage + "%";
+  if (progressCheckEnabled) {
+    setTimeout(progressChecker, 100);
+  }
+}

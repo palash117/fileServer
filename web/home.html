@@ -47,10 +47,12 @@
         justify-content: center;
       }
       .waitMessage {
+        align-self: center;
         color: #fff;
         margin: 5% 0 0 0;
       }
       .lds-dual-ring {
+        align-self: center;
         display: inline-block;
         width: 80px;
         height: 80px;
@@ -74,6 +76,25 @@
           transform: rotate(360deg);
         }
       }
+      .statusbar {
+        align-self: center;
+        width: 50%;
+        height: 50px;
+        display: flex;
+        border: 2px dotted #fff;
+        background-color: black;
+      }
+      .statusCompleted {
+        padding: 2% 2% 2% 2%;
+        width: 10%;
+        height: auto;
+        background-color: white;
+      }
+      .statusPending {
+        width: auto;
+        height: auto;
+        background-color: black;
+      }
     </style>
     <meta charset="UTF-8" />
     <link
@@ -95,6 +116,10 @@
       <span class="waitMessage">
         PLEASE WAIT
       </span>
+      <div class="statusbar">
+        <div class="statusCompleted"></div>
+        <div class="statusPending"></div>
+      </div>
     </div>
     <div id="wrapperDiv" class="wrapperDiv">
       <div id="uploadDiv" class="uploadDiv">
