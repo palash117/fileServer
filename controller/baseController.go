@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/gorilla/websocket"
 )
 
 const (
@@ -51,4 +53,30 @@ func DownloadFileById(w http.ResponseWriter, r *http.Request) {
 func DeleteFileById(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Delete file endpoint hit")
 	service.DeleteFileById(w, r)
+}
+
+func PartUpload(w http.ResponseWriter, r *http.Request) {
+	u := websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool { return true },
+	}
+	c, upgradeErr := u.Upgrade(w, r, nil)
+	if upgradeErr != nil {
+		// handle error
+		fmt.Printf("error while upgrading %v", upgradeErr)
+	}
+	defer c.Close()
+	service.StreamUpload(c)
+}
+
+func AppendToFileById(w http.ResponseWriter, r *http.Request, id int) error {
+	// get file item from db
+	savedFile := dao.GetItemById(id)
+	if savedFile == nil {
+		return fmt.Errorf("file not found with id %v", id)
+	}
+
+	// fetch bytes from stream
+	// open file using file path
+	// write bytes to file
+	return nil
 }

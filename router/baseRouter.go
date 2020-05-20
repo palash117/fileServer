@@ -19,6 +19,7 @@ const (
 	HOME                = "/home"
 	SERVE               = "/serve/"
 	DELETE_FILE_BY_ID   = "/deleteFileById"
+	PART_FILE_UPLOAD    = "/PartUpload"
 )
 
 type handler struct {
@@ -30,6 +31,7 @@ func (h handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	h.handlerFunc(w, req)
 }
 
+// Start start server
 func Start() {
 	fmt.Println("started")
 
@@ -44,6 +46,8 @@ func Start() {
 	http.Handle(BASE_PATH+DOWNLOAD_FILE_BY_ID, handler{DOWNLOAD_FILE_BY_ID, controller.DownloadFileById})
 
 	http.Handle(BASE_PATH+DELETE_FILE_BY_ID, handler{DELETE_FILE_BY_ID, controller.DeleteFileById})
+
+	http.Handle(BASE_PATH+PART_FILE_UPLOAD, handler{PART_FILE_UPLOAD, controller.PartUpload})
 
 	http.Handle(SERVE, http.StripPrefix(SERVE, http.FileServer(http.Dir("./web"))))
 	path, errx := os.Getwd()

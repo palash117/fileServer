@@ -2,6 +2,7 @@ package service
 
 import (
 	"fileServer/dao"
+	"fileServer/dto"
 	"fileServer/models"
 	"fileServer/util"
 	"fmt"
@@ -11,10 +12,13 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 var (
 	BASE_FILE_PATH = os.Getenv("FS_GO_BASE_PATH")
+	SEND_DATA      = []byte("SEND_DATA")
 )
 
 func UploadFileAndsaveToDb(w http.ResponseWriter, r *http.Request) {
@@ -132,4 +136,54 @@ func deleteFile(path string) {
 	}
 
 	fmt.Println("==> done deleting file")
+}
+
+func StreamUpload(c *websocket.Conn) {
+	var fileData dto.Filestruct
+	c.ReadJSON(&fileData)
+	//defer close connection
+	defer c.Close()
+	// create db entry
+	dao.SaveItem(models.MakeItem(fileData.Name, BASE_FILE_PATH+"/"+
+		fileData.Name, time.Now()))
+	// ask for data from client
+	c.WriteMessage(1, []byte(SEND_DATA))
+	// get bytes in batches
+	byteCount := 0
+	for byteCount < fileData.Size {
+		_, message, messageRetrievalError := c.ReadMessage()
+		if messageRetrievalError != nil {
+			fmt.Printf("error :%v\n", messageRetrievalError)
+		}
+		filePath := BASE_FILE_PATH + string(os.PathSeparator) + fileData.Name
+
+		// save batches to file
+		AppendToFile(message, filePath)
+		// update client to send more
+		c.WriteMessage(websocket.TextMessage, SEND_DATA)
+		byteCount += len(message)
+	}
+
+	// on completion update db entry as completed
+	// send message completed to client
+}
+
+// AppendToFile append data to file if exists else create new file and set data
+// accepts message to be written and file name
+func AppendToFile(message []byte, filepath string) error {
+	f, err := os.OpenFile(filepath,
+		os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer f.Close()
+	seek, seekError := f.Seek(0, 2)
+	if seekError != nil {
+
+		fmt.Println(err)
+	}
+	if _, err := f.WriteAt(message, seek); err != nil {
+		fmt.Println(err)
+	}
+	return nil
 }

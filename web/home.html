@@ -13,6 +13,8 @@
         overflow: auto;
         overflow-x: hidden;
         overflow-y: hidden;
+        display: flex;
+        flex-direction: column;
       }
 
       .wrapperDiv {
@@ -105,6 +107,10 @@
         />
       </div>
       <div id="filesDiv" class="filesDiv">
+        <!-- test code -->
+        <input type="file" name="inputfile" id="inputfile" />
+        <span id="output"></span>
+        <!-- test code endyyux -->
         <button
           name="filesRefresh"
           onclick="paintFiles()"
