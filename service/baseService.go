@@ -146,6 +146,7 @@ func StreamUpload(c *websocket.Conn) {
 	// create db entry
 	dao.SaveItem(models.MakeItem(fileData.Name, BASE_FILE_PATH+"/"+
 		fileData.Name, time.Now()))
+	fmt.Printf("recieved file struct: %v\n", fileData)
 	// ask for data from client
 	c.WriteMessage(1, []byte(SEND_DATA))
 	// get bytes in batches
@@ -156,14 +157,19 @@ func StreamUpload(c *websocket.Conn) {
 			fmt.Printf("error :%v\n", messageRetrievalError)
 		}
 		filePath := BASE_FILE_PATH + string(os.PathSeparator) + fileData.Name
-
+		fmt.Printf("recieved percentage %d\n", (byteCount*100)/fileData.Size)
 		// save batches to file
-		AppendToFile(message, filePath)
+		appendError := AppendToFile(message, filePath)
+		if appendError != nil {
+			fmt.Printf("error while appending data to file %v\n", appendError)
+		}
+
 		// update client to send more
 		// time.Sleep(10 * time.Second)
 		c.WriteMessage(websocket.TextMessage, SEND_DATA)
 		byteCount += len(message)
 	}
+	fmt.Printf("file upload complete ")
 
 	// on completion update db entry as completed
 	// send message completed to client
@@ -175,16 +181,16 @@ func AppendToFile(message []byte, filepath string) error {
 	f, err := os.OpenFile(filepath,
 		os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 	defer f.Close()
 	seek, seekError := f.Seek(0, 2)
 	if seekError != nil {
 
-		fmt.Println(err)
+		return seekError
 	}
-	if _, err := f.WriteAt(message, seek); err != nil {
-		fmt.Println(err)
+	if _, writeErr := f.WriteAt(message, seek); writeErr != nil {
+		return writeErr
 	}
 	return nil
 }

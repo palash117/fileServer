@@ -14,9 +14,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-const (
-	BASE_FILE_PATH = "/Users/palash.sarkar/fsdownloads"
-)
+const ()
 
 var (
 	PORT = os.Getenv("FS_PORT")
@@ -62,13 +60,14 @@ func DeleteFileById(w http.ResponseWriter, r *http.Request) {
 }
 
 func PartUpload(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("attempting to open websocket\n")
 	u := websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool { return true },
 	}
 	c, upgradeErr := u.Upgrade(w, r, nil)
 	if upgradeErr != nil {
 		// handle error
-		fmt.Printf("error while upgrading %v", upgradeErr)
+		fmt.Printf("error while opening websocket %v\n", upgradeErr)
 	}
 	defer c.Close()
 	service.StreamUpload(c)
