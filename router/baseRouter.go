@@ -57,13 +57,12 @@ func Start() {
 	http.Handle(SERVE, http.StripPrefix(SERVE, http.FileServer(http.Dir("./web"))))
 	path, errx := os.Getwd()
 	if errx != nil {
-		fmt.Println(errx)
+		fmt.Printf("error getting working path, %v\n", errx)
 	}
-	fmt.Println(path)
+	fmt.Printf("working path, %v\n", path)
 	err := http.ListenAndServe(PORT, nil)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("error starting listenAndServe, %v\n", err)
 	}
 
-	fmt.Println("started 2 ")
 }
