@@ -194,3 +194,22 @@ func AppendToFile(message []byte, filepath string) error {
 	}
 	return nil
 }
+
+func FileSaveTest() string {
+	filepath := BASE_FILE_PATH + string(os.PathSeparator) + strconv.Itoa(int(time.Now().UnixNano()))
+	f, err := os.OpenFile(filepath, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Printf("Error while opening new file with path , %s, %v", filepath, err)
+		return fmt.Sprintf("Error while opening new file with path , %s, %v", filepath, err)
+	}
+
+	f.WriteString("hello world")
+	f.Close()
+	removeErr := os.Remove(filepath)
+	if removeErr != nil {
+
+		fmt.Printf("Error while removing new file with path , %s, %v", filepath, removeErr)
+		return fmt.Sprintf("Error while removing new file with path , %s, %v", filepath, removeErr)
+	}
+	return fmt.Sprintf("success with filename %s", filepath)
+}

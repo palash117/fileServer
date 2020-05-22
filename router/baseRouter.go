@@ -23,6 +23,7 @@ const (
 	DELETE_FILE_BY_ID   = "/deleteFileById"
 	PART_FILE_UPLOAD    = "/PartUpload"
 	LOCAL_IP            = "/localIp"
+	FILE_SAVE_TEST      = "/fileSaveTest"
 )
 
 type handler struct {
@@ -53,6 +54,8 @@ func Start() {
 	http.Handle(BASE_PATH+PART_FILE_UPLOAD, handler{PART_FILE_UPLOAD, controller.PartUpload})
 
 	http.Handle(BASE_PATH+LOCAL_IP, handler{PART_FILE_UPLOAD, controller.GetLocalIP})
+
+	http.Handle(BASE_PATH+FILE_SAVE_TEST, handler{FILE_SAVE_TEST, controller.FileSaveTest})
 
 	http.Handle(SERVE, http.StripPrefix(SERVE, http.FileServer(http.Dir("./web"))))
 	path, errx := os.Getwd()

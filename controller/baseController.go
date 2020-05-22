@@ -77,3 +77,7 @@ func GetLocalIP(w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte(IP + ":" + PORT))
 }
+
+func FileSaveTest(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte(service.FileSaveTest()))
+}
