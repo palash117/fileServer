@@ -13,7 +13,6 @@ function fetchFiles(func) {
       return response.json();
     })
     .then((json) => {
-      console.log(json);
       func(json);
     });
 }
@@ -28,7 +27,6 @@ function updateFiles(files) {
       files[i].FileName +
       "</a></td>" +
       "<td>" +
-      //+'<a href="/fs/deleteFileById?id=' + files[i].Id + '">'
       '<img src="./resources/delete_icon.png" width="25" height="25" onclick="deleteFileById(' +
       files[i].Id +
       ')"></td>' +
@@ -101,6 +99,7 @@ function init() {
   document.getElementById("uploadFile").addEventListener("change", function () {
     fileUpload(this);
   });
+  pageRefresher();
 }
 
 function fileTransferByParts(origin, filestruct, afterFunc) {
@@ -143,27 +142,9 @@ function sendData(filestruct, websocketConn, index) {
   );
   websocketConn.send(messagePart);
 }
-/*
-for i := 0; i <= len(message)/limit; i++ {
-		size := 0
-		if (i+1)*limit < len(message) {
-			size = limit
-		} else {
-			size = len(message) - (i * limit)
-		}
-		messagePart := make([]byte, size)
-		for j := i * limit; j < (i*limit + size); j++ {
-			messagePart[j-(i*limit)] = message[j]
-		}
-		AppendToFile(messagePart, filename)
-	}
-*/
+
 function resetProgress() {
   progresCompletedBar.style.width = "1%";
-}
-
-function startProgressCheck() {
-  setTimeout(progressChecker, 100);
 }
 
 function progressChecker() {
@@ -171,4 +152,15 @@ function progressChecker() {
   if (progressCheckEnabled) {
     setTimeout(progressChecker, 100);
   }
+}
+
+function pageRefresher() {
+  setTimeout(() => {
+    refreshPage();
+    pageRefresher();
+  }, 1000);
+}
+
+function startProgressCheck() {
+  setTimeout(progressChecker, 100);
 }

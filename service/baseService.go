@@ -150,14 +150,14 @@ func StreamUpload(c *websocket.Conn) {
 	// ask for data from client
 	c.WriteMessage(1, []byte(SEND_DATA))
 	// get bytes in batches
-	byteCount := 0
+	byteCount := int(0)
+	fileSize := fileData.Size
 	for byteCount < fileData.Size {
 		_, message, messageRetrievalError := c.ReadMessage()
 		if messageRetrievalError != nil {
 			fmt.Printf("error :%v\n", messageRetrievalError)
 		}
 		filePath := BASE_FILE_PATH + string(os.PathSeparator) + fileData.Name
-		fmt.Printf("recieved percentage %d\n", (byteCount*100)/fileData.Size)
 		// save batches to file
 		appendError := AppendToFile(message, filePath)
 		if appendError != nil {
@@ -168,6 +168,8 @@ func StreamUpload(c *websocket.Conn) {
 		// time.Sleep(10 * time.Second)
 		c.WriteMessage(websocket.TextMessage, SEND_DATA)
 		byteCount += len(message)
+		percentage := (byteCount * 100) / fileData.Size
+		fmt.Printf("recieved percentage %d %% , %d out of %d \n", percentage, byteCount, fileSize)
 	}
 	fmt.Printf("file upload complete ")
 
