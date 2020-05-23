@@ -11,7 +11,7 @@ import (
 
 var (
 	PORT              = fmt.Sprint(":", os.Getenv("FS_PORT"))
-	uploadRateLimiter = rate_limiter.CreateRateLimiter(10)
+	uploadRateLimiter = rate_limiter.CreateRateLimiter(1)
 )
 
 const (
