@@ -21,7 +21,7 @@ function updateFiles(files) {
   for (var i = 0; i < files.length; i++) {
     newFilesDiv +=
       "<tr>" +
-      '<td><a href="/fs/downloadFileById?id=' +
+      '<td><span class="fileItem"><a href="/fs/downloadFileById?id=' +
       files[i].Id +
       '" target="_blank">' +
       files[i].FileName +
@@ -29,7 +29,7 @@ function updateFiles(files) {
       "<td>" +
       '<img src="./resources/delete_icon.png" width="25" height="25" onclick="deleteFileById(' +
       files[i].Id +
-      ')"></td>' +
+      ')"></span></td>' +
       "</tr>";
   }
   document.getElementById("filesTable").innerHTML = newFilesDiv;
