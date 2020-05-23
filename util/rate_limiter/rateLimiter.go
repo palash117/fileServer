@@ -1,6 +1,7 @@
 package rate_limiter
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
@@ -9,6 +10,10 @@ type rateLimiter struct {
 	limit   int
 	timeout time.Duration
 	mutex   sync.Mutex
+}
+
+func (r *rateLimiter) Status() string {
+	return fmt.Sprintf("available: %d", r.limit)
 }
 
 func (r *rateLimiter) GetToken() bool {
@@ -32,6 +37,7 @@ func (r *rateLimiter) ReturnToken() {
 type RateLimiter interface {
 	GetToken() bool
 	ReturnToken()
+	Status() string
 }
 
 // CreateRateLimiter returns a rateLimiter interface which can be used to limit api calls / function calls

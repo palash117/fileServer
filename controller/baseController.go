@@ -42,7 +42,7 @@ func Health(w http.ResponseWriter, req *http.Request) {
 
 func GetPaginatedItems(w http.ResponseWriter, r *http.Request) {
 	obj := new(models.Item)
-	fmt.Println(obj)
+	// fmt.Println(obj)
 	data := dao.GetItemsPaginated(0, 0)
 	w.Header().Add("ContentType", "Application/Json")
 	w.WriteHeader(http.StatusOK)
