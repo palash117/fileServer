@@ -2,13 +2,16 @@ package router
 
 import (
 	"fileServer/controller"
+	"fileServer/util/rate_limiter"
+	"fileServer/util/wrappercontroller"
 	"fmt"
 	"net/http"
 	"os"
 )
 
 var (
-	PORT = fmt.Sprint(":", os.Getenv("FS_PORT"))
+	PORT              = fmt.Sprint(":", os.Getenv("FS_PORT"))
+	uploadRateLimiter = rate_limiter.CreateRateLimiter(10)
 )
 
 const (
@@ -51,7 +54,8 @@ func Start() {
 
 	http.Handle(BASE_PATH+DELETE_FILE_BY_ID, handler{DELETE_FILE_BY_ID, controller.DeleteFileById})
 
-	http.Handle(BASE_PATH+PART_FILE_UPLOAD, handler{PART_FILE_UPLOAD, controller.PartUpload})
+	partUploadFunction := wrappercontroller.WrapWithConcurrencyLimiter(uploadRateLimiter, controller.PartUpload)
+	http.Handle(BASE_PATH+PART_FILE_UPLOAD, handler{PART_FILE_UPLOAD, partUploadFunction})
 
 	http.Handle(BASE_PATH+LOCAL_IP, handler{PART_FILE_UPLOAD, controller.GetLocalIP})
 
