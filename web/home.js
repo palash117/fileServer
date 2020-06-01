@@ -150,7 +150,7 @@ class Sm {
     this.current_state = this.states.READY;
     this.fileReader = new FileReader();
     this.offset = 0;
-    this.PACKET_SIZE = 10 * 1024 * 1024;
+    this.PACKET_SIZE = 100 * 1024 * 1024;
     this.setTransitionFunctions();
   }
   print() {
