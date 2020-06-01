@@ -159,7 +159,7 @@ func StreamUpload(c *websocket.Conn) {
 		}
 		filePath := BASE_FILE_PATH + string(os.PathSeparator) + fileData.Name
 		// save batches to file
-		appendError := AppendToFile(message, filePath)
+		appendError := AppendToFile(&message, filePath)
 		if appendError != nil {
 			fmt.Printf("error while appending data to file %v\n", appendError)
 		}
@@ -179,7 +179,7 @@ func StreamUpload(c *websocket.Conn) {
 
 // AppendToFile append data to file if exists else create new file and set data
 // accepts message to be written and file name
-func AppendToFile(message []byte, filepath string) error {
+func AppendToFile(message *[]byte, filepath string) error {
 	f, err := os.OpenFile(filepath,
 		os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
@@ -191,7 +191,7 @@ func AppendToFile(message []byte, filepath string) error {
 
 		return seekError
 	}
-	if _, writeErr := f.WriteAt(message, seek); writeErr != nil {
+	if _, writeErr := f.WriteAt(*message, seek); writeErr != nil {
 		return writeErr
 	}
 	return nil
