@@ -1,0 +1,25 @@
+{
+  "name": "fileServer",
+  "version": "1.0.0",
+  "description": "A file server, intented to be deployed on a home raspberry server to act as a home file server",
+  "main": "web/home.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "parcel web/home.html",
+    "prod": "parcel build web/home.html --no-source-maps"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/palash117/fileServer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/palash117/fileServer/issues"
+  },
+  "homepage": "https://github.com/palash117/fileServer#readme",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4"
+  }
+}

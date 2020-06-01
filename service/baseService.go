@@ -18,7 +18,7 @@ import (
 
 var (
 	BASE_FILE_PATH = os.Getenv("FS_GO_BASE_PATH")
-	SEND_DATA      = []byte("SEND_DATA")
+	SEND_DATA      = []byte("SEND_MORE")
 )
 
 func UploadFileAndsaveToDb(w http.ResponseWriter, r *http.Request) {

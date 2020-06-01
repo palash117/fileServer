@@ -61,7 +61,7 @@ func Start() {
 
 	http.Handle(BASE_PATH+FILE_SAVE_TEST, handler{FILE_SAVE_TEST, controller.FileSaveTest})
 
-	http.Handle(SERVE, http.StripPrefix(SERVE, http.FileServer(http.Dir("./web"))))
+	http.Handle(SERVE, http.StripPrefix(SERVE, http.FileServer(http.Dir("./dist"))))
 	path, errx := os.Getwd()
 	if errx != nil {
 		fmt.Printf("error getting working path, %v\n", errx)

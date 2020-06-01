@@ -3,7 +3,7 @@ var PACKET_LIMIT = 1024 * 1024 * 10;
 var progresCompletedBar;
 var progressCompletedPercentage = 1;
 var progressCheckEnabled;
-
+import {createSm} from "./sm.js"
 function paintFiles() {
   fetchFiles(updateFiles);
 }
@@ -34,14 +34,14 @@ function updateFiles(files) {
   }
   document.getElementById("filesTable").innerHTML = newFilesDiv;
 }
-function getOriginIp(func, filestruct, afterFunc) {
+function getOriginIp(func) {
   fetch("/fs/localIp")
     .then((response) => {
       return response.text();
     })
     .then((text) => {
       console.log(text);
-      func(text, filestruct, afterFunc);
+      func(text);
     });
 }
 function deleteFileById(id) {
@@ -56,25 +56,29 @@ function deleteFileById(id) {
     });
 }
 function fileUpload(event) {
-  console.log(event.files[0].name);
-  setWaitPage();
-  streamData(event, removeWaitPage);
+  // console.log(event.files[0].name);
+  // setWaitPage();
+  // streamData(event, removeWaitPage);
+  getOriginIp((ip)=>{
+  sm = createSm(event.files[0],setWaitPage, removeWaitPage, ip);
+  sm.transition;
+  });
 }
-function streamData(event, afterFunc) {
-  var fr = new FileReader();
-  fr.onload = function () {
-    console.log(fr.result);
-    console.log(fr.result.length);
-    filestruct.size = fr.result.byteLength;
-    filestruct.content = fr.result;
-    getOriginIp(fileTransferByParts, filestruct, afterFunc);
-  };
-  filestruct = {
-    name: event.files[0].name,
-    size: 0,
-  };
-  fr.readAsArrayBuffer(event.files[0]);
-}
+// function streamData(event, afterFunc) {
+//   var fr = new FileReader();
+//   fr.onload = function () {
+//     console.log(fr.result);
+//     console.log(fr.result.length);
+//     filestruct.size = fr.result.byteLength;
+//     filestruct.content = fr.result;
+//     getOriginIp(fileTransferByParts, filestruct, afterFunc);
+//   };
+//   filestruct = {
+//     name: event.files[0].name,
+//     size: 0,
+//   };
+//   fr.readAsArrayBuffer(event.files[0]);
+// }
 
 function refreshPage() {
   paintFiles();
