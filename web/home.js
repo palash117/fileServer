@@ -34,14 +34,14 @@ function updateFiles(files) {
   }
   document.getElementById("filesTable").innerHTML = newFilesDiv;
 }
-function getOriginIp(func, filestruct, afterFunc) {
+function getOriginIp(func) {
   fetch("/fs/localIp")
     .then((response) => {
       return response.text();
     })
     .then((text) => {
       console.log(text);
-      func(text, filestruct, afterFunc);
+      func(text);
     });
 }
 function deleteFileById(id) {
@@ -56,24 +56,10 @@ function deleteFileById(id) {
     });
 }
 function fileUpload(event) {
-  console.log(event.files[0].name);
-  setWaitPage();
-  streamData(event, removeWaitPage);
-}
-function streamData(event, afterFunc) {
-  var fr = new FileReader();
-  fr.onload = function () {
-    console.log(fr.result);
-    console.log(fr.result.length);
-    filestruct.size = fr.result.byteLength;
-    filestruct.content = fr.result;
-    getOriginIp(fileTransferByParts, filestruct, afterFunc);
-  };
-  filestruct = {
-    name: event.files[0].name,
-    size: 0,
-  };
-  fr.readAsArrayBuffer(event.files[0]);
+  getOriginIp((ip)=>{
+    sm = createSm(event.files[0],setWaitPage, removeWaitPage, ip);
+    sm.transition();
+    });
 }
 
 function refreshPage() {
@@ -102,45 +88,9 @@ function init() {
   pageRefresher();
 }
 
-function fileTransferByParts(origin, filestruct, afterFunc) {
-  console.log("sending file by parts");
-  console.log(filestruct);
-  var exampleSocket = new WebSocket("ws://" + origin + "/fs/PartUpload");
-  metaInfoSent = false;
-  index = 0;
 
-  exampleSocket.onopen = function () {
-    // if()
-    exampleSocket.send(JSON.stringify(filestruct));
-    // exampleSocket.
-  };
-  exampleSocket.onmessage = function (event) {
-    switch (event.data) {
-      case "SEND_DATA":
-        sendData(filestruct, exampleSocket, index);
-        progressCompletedPercentage =
-          (index * PACKET_LIMIT * 100) / filestruct.size;
-        progressCompletedPercentage = Math.floor(progressCompletedPercentage);
-        index++;
-        break;
-    }
-  };
-  exampleSocket.onclose = function () {
-    afterFunc();
-  };
-}
-function sendData(filestruct, websocketConn, index) {
-  size = 0;
-  if ((index + 1) * PACKET_LIMIT < filestruct.size) {
-    size = PACKET_LIMIT;
-  } else {
-    size = filestruct.size - index * PACKET_LIMIT;
-  }
-  messagePart = filestruct.content.slice(
-    index * PACKET_LIMIT,
-    index * PACKET_LIMIT + size
-  );
-  websocketConn.send(messagePart);
+function updateProgressPercentage(val){
+  progressCompletedPercentage = val
 }
 
 function resetProgress() {
@@ -163,4 +113,153 @@ function pageRefresher() {
 
 function startProgressCheck() {
   setTimeout(progressChecker, 100);
+}
+
+//------------------------------------------------------------------------SM-CODE------------------------------------------------------------------------//
+function createSm(file, before_func, after_func, ip) {
+  var exampleSocket = new WebSocket("ws://" + ip + "/fs/PartUpload");
+  return new Sm(file, exampleSocket, before_func, after_func);
+}
+class Sm {
+  // methods
+  constructor(file, websocket, before_func, after_func) {
+    this.states = {
+      READY: "READY",
+      OPEN_WEBSOCKET: "OPEN_WEBSOCKET",
+      READ_META: "READ_META",
+      WRITE_META: "WRITE_META",
+      READ_WRITE_CONTINUE_CHECK: "READ_WRITE_CONTINUE_CHECK",
+      READ_BYTES: "READ_BYTES",
+      WRITE_BYTES: "WRITE_BYTES",
+      END: "END",
+    };
+    this.events = {
+      NO_EVENT: "NO_EVENT",
+      READ_MORE: "READ_MORE",
+    };
+    this.before_func = before_func;
+    this.after_func = after_func;
+    //test
+    //test over
+    this.websocket = websocket;
+    this.file = file;
+    this.filemeta = {};
+    this.websocket.onmessage = closureTransition(this, this.transition);
+    this.event = this.events.NO_EVENT;
+    this.funcMap = {};
+    this.current_state = this.states.READY;
+    this.fileReader = new FileReader();
+    this.offset = 0;
+    this.PACKET_SIZE = 10 * 1024 * 1024;
+    this.setTransitionFunctions();
+  }
+  print() {
+    console.log(`state:${this.current_state};event${this.event}`);
+  }
+  transition(data) {
+    this.print();
+    var nextFunction = this.getNextTransitionFunc();
+    nextFunction.call(this, data);
+  }
+  // transitionKey generates a string key using which the next transition function can be identified
+  transitionKey() {
+    console.log(`${this.current_state}:${this.event}`);
+    return `${this.current_state}:${this.event}`;
+  }
+  getNextTransitionFunc() {
+    return this.funcMap[this.transitionKey()];
+  }
+  setTransitionFunctions() {
+    this.funcMap[
+      this.createTransitionKey(this.states.READY, this.events.NO_EVENT)
+    ] = this.readMeta;
+    this.funcMap[
+      this.createTransitionKey(this.states.OPEN_WEBSOCKET, this.events.NO_EVENT)
+    ] = this.openWebSocket; //todo
+    this.funcMap[
+      this.createTransitionKey(this.states.READ_META, this.events.NO_EVENT)
+    ] = this.writeMeta;
+    this.funcMap[
+      this.createTransitionKey(this.states.WRITE_META, this.events.NO_EVENT)
+    ] = this.readBytes;
+    this.funcMap[
+      this.createTransitionKey(this.states.WRITE_BYTES, this.events.NO_EVENT)
+    ] = this.continueCheck;
+    this.funcMap[
+      this.createTransitionKey(
+        this.states.READ_WRITE_CONTINUE_CHECK,
+        this.events.READ_MORE
+      )
+    ] = this.readBytes;
+    this.funcMap[
+      this.createTransitionKey(
+        this.states.READ_WRITE_CONTINUE_CHECK,
+        this.events.NO_EVENT
+      )
+    ] = this.end;
+    this.funcMap[
+      this.createTransitionKey(this.states.READ_BYTES, this.events.NO_EVENT)
+    ] = this.writeBytes;
+  }
+  createTransitionKey(_state, _event) {
+    return `${_state}:${_event}`;
+  }
+  openWebSocket() {
+    this.current_state = this.states.READ_META;
+    this.event = this.events.NO_EVENT;
+    this.websocket.onopen = closureTransition(this, this.transition);
+  }
+  readMeta(that) {
+    this.before_func();
+    this.current_state = this.states.OPEN_WEBSOCKET;
+    this.event = this.events.NO_EVENT;
+    this.filemeta = { name: this.file.name, size: this.file.size };
+    this.transition();
+  }
+  writeMeta() {
+    this.current_state = this.states.WRITE_META;
+    this.event = this.events.NO_EVENT;
+    this.websocket.send(JSON.stringify(this.filemeta));
+    // this.onmessage = closureTransition(this, this.transition);
+  }
+  continueCheck() {
+    if (this.offset >= this.filemeta.size) {
+      this.current_state = this.states.READ_WRITE_CONTINUE_CHECK;
+      this.event = this.events.NO_EVENT;
+    } else {
+      this.current_state = this.states.READ_WRITE_CONTINUE_CHECK;
+      this.event = this.events.READ_MORE;
+    }
+    this.transition();
+  }
+  readBytes() {
+    this.current_state = this.states.READ_BYTES;
+    this.event = this.events.NO_EVENT;
+    updateProgressPercentage((this.offset*100)/this.filemeta.size)
+    this.fileReader.onload = closureTransition(this, this.transition);
+    var blob = this.file.slice(this.offset, this.PACKET_SIZE + this.offset);
+    this.fileReader.readAsArrayBuffer(blob);
+  }
+
+  writeBytes(data) {
+    this.current_state = this.states.WRITE_BYTES;
+    this.event = this.events.NO_EVENT;
+
+    var byteData = this.fileReader.result;
+    // this.websocket.onmessage = closureTransition(this, this.transition);
+    this.offset += this.PACKET_SIZE;
+    this.websocket.send(byteData);
+  }
+  end() {
+    this.current_state = this.states.END;
+    this.event = this.events.NO_EVENT;
+    this.websocket.close();
+    this.after_func();
+  }
+}
+function closureTransition(ref, func, data) {
+  let obj = ref;
+  return function apply() {
+    func.call(obj, data);
+  };
 }
