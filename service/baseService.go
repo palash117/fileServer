@@ -2,6 +2,7 @@ package service
 
 import (
 	"fileServer/dao"
+	"fileServer/dto"
 	"fileServer/models"
 	"fileServer/util"
 	"fmt"
@@ -11,10 +12,13 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 var (
 	BASE_FILE_PATH = os.Getenv("FS_GO_BASE_PATH")
+	SEND_DATA      = []byte("SEND_DATA")
 )
 
 func UploadFileAndsaveToDb(w http.ResponseWriter, r *http.Request) {
@@ -132,4 +136,82 @@ func deleteFile(path string) {
 	}
 
 	fmt.Println("==> done deleting file")
+}
+
+func StreamUpload(c *websocket.Conn) {
+	var fileData dto.Filestruct
+	c.ReadJSON(&fileData)
+	//defer close connection
+	defer c.Close()
+	// create db entry
+	dao.SaveItem(models.MakeItem(fileData.Name, BASE_FILE_PATH+"/"+
+		fileData.Name, time.Now()))
+	fmt.Printf("recieved file struct: %v\n", fileData)
+	// ask for data from client
+	c.WriteMessage(1, []byte(SEND_DATA))
+	// get bytes in batches
+	byteCount := int(0)
+	fileSize := fileData.Size
+	for byteCount < fileData.Size {
+		_, message, messageRetrievalError := c.ReadMessage()
+		if messageRetrievalError != nil {
+			fmt.Printf("error :%v\n", messageRetrievalError)
+		}
+		filePath := BASE_FILE_PATH + string(os.PathSeparator) + fileData.Name
+		// save batches to file
+		appendError := AppendToFile(&message, filePath)
+		if appendError != nil {
+			fmt.Printf("error while appending data to file %v\n", appendError)
+		}
+
+		// update client to send more
+		// time.Sleep(10 * time.Second)
+		c.WriteMessage(websocket.TextMessage, SEND_DATA)
+		byteCount += len(message)
+		percentage := (byteCount * 100) / fileData.Size
+		fmt.Printf("recieved percentage %d %% , %d out of %d \n", percentage, byteCount, fileSize)
+	}
+	fmt.Printf("file upload complete ")
+
+	// on completion update db entry as completed
+	// send message completed to client
+}
+
+// AppendToFile append data to file if exists else create new file and set data
+// accepts message to be written and file name
+func AppendToFile(message *[]byte, filepath string) error {
+	f, err := os.OpenFile(filepath,
+		os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	seek, seekError := f.Seek(0, 2)
+	if seekError != nil {
+
+		return seekError
+	}
+	if _, writeErr := f.WriteAt(*message, seek); writeErr != nil {
+		return writeErr
+	}
+	return nil
+}
+
+func FileSaveTest() string {
+	filepath := BASE_FILE_PATH + string(os.PathSeparator) + strconv.Itoa(int(time.Now().UnixNano()))
+	f, err := os.OpenFile(filepath, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Printf("Error while opening new file with path , %s, %v", filepath, err)
+		return fmt.Sprintf("Error while opening new file with path , %s, %v", filepath, err)
+	}
+
+	f.WriteString("hello world")
+	f.Close()
+	removeErr := os.Remove(filepath)
+	if removeErr != nil {
+
+		fmt.Printf("Error while removing new file with path , %s, %v", filepath, removeErr)
+		return fmt.Sprintf("Error while removing new file with path , %s, %v", filepath, removeErr)
+	}
+	return fmt.Sprintf("success with filename %s", filepath)
 }
