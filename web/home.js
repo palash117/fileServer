@@ -89,7 +89,7 @@ function init() {
   document.getElementById("uploadFile").addEventListener("change", function () {
     fileUpload(this);
   });
-  // pageRefresher();
+  pageRefresher();
 }
 
 var download = ()=>{
