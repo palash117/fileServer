@@ -21,15 +21,19 @@ function updateFiles(files) {
   for (var i = 0; i < files.length; i++) {
     newFilesDiv +=
       "<tr>" +
-      '<td><span class="fileItem"><a href="/fs/downloadFileById?id=' +
+      '<td>'+
+      // <span class="fileItem">
+      '<a href="/fs/downloadFileById?id=' +
       files[i].Id +
       '" target="_blank">' +
       files[i].FileName +
       "</a></td>" +
       "<td>" +
+      `<a href="/fs/downloadFileById?id=${files[i].Id}" class="fa fa-download" download="${files[i].FileName}"></a>` +
+      "</td><td>"+
       '<img src="./resources/delete_icon.png" width="25" height="25" onclick="deleteFileById(' +
       files[i].Id +
-      ')"></span></td>' +
+      ')"></td>' +
       "</tr>";
   }
   document.getElementById("filesTable").innerHTML = newFilesDiv;
@@ -85,9 +89,12 @@ function init() {
   document.getElementById("uploadFile").addEventListener("change", function () {
     fileUpload(this);
   });
-  pageRefresher();
+  // pageRefresher();
 }
 
+var download = ()=>{
+
+}
 
 function updateProgressPercentage(val){
   progressCompletedPercentage = val
