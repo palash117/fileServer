@@ -92,10 +92,6 @@ function init() {
   pageRefresher();
 }
 
-var download = ()=>{
-
-}
-
 function updateProgressPercentage(val){
   progressCompletedPercentage = val
 }
