@@ -67,6 +67,7 @@ func Start() {
 		fmt.Printf("error getting working path, %v\n", errx)
 	}
 	fmt.Printf("working path, %v\n", path)
+	fmt.Printf("listening on port %v", PORT)
 	err := http.ListenAndServe(PORT, nil)
 	if err != nil {
 		fmt.Printf("error starting listenAndServe, %v\n", err)

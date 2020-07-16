@@ -35,9 +35,9 @@ func SaveItem(item *models.Item) {
 
 }
 
-func GetItemsPaginated(pageNo int, pageSize int) []models.Item {
+func GetItemsPaginated(pageNo int64, pageSize int64) []models.Item {
 	data := []models.Item{}
-	dbInst.Where("deleted_at is null").Find(&data)
+	dbInst.Where("deleted_at is null").Offset((pageNo - 1) * pageSize).Limit(pageSize).Find(&data)
 	return data
 }
 
