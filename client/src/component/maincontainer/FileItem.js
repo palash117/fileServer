@@ -9,8 +9,14 @@ const FileItem = ({ file: { FileName, CreatedAt, Id } }) => {
         <Moment format="DD/MM/YYYY">{CreatedAt}</Moment>
       </td>
       <td class="cell actions">
-        <div class="downloaddiv fa fa-download"></div>
-        <div class="deletediv fa fa-trash"></div>
+        <div
+          href={`/fs/downloadFileById?id=${Id}`}
+          class="downloaddiv fa fa-download"
+        ></div>
+        <div
+          href={`/fs/downloadFileById?id=${Id}`}
+          class="deletediv fa fa-trash"
+        ></div>
       </td>
     </tr>
   );

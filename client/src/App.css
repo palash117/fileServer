@@ -80,9 +80,15 @@ body {
 .filerow:nth-child(2n) {
   background-color: rgba(0, 0, 0, 0.2);
 }
-.downloaddiv {
+.downloaddiv .deletediv {
   padding: 5px;
-  margin-right: 5px;
+  margin-right: 10px;
+  border: none;
+  color: inherit;
+  outline: inherit;
+}
+.disabled {
+  color: grey;
 }
 .actions {
   flex-direction: column;
@@ -235,6 +241,6 @@ body {
     font-size: 90%;
   }
   .filename {
-    max-width: 150px;
+    max-width: 200px;
   }
 }

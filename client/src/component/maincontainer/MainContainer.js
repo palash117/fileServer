@@ -5,6 +5,7 @@ import FileList from "./FileList";
 import { getPaginatedFiles } from "../../actions/file";
 import { connect } from "react-redux";
 import { PAGE_SIZE } from "../../constants";
+import Nav from "./Nav";
 
 const MainContainer = ({ getPaginatedFiles }) => {
   //   setAlert("hello", "danger");
@@ -14,6 +15,7 @@ const MainContainer = ({ getPaginatedFiles }) => {
         <Upload />
         <Search />
         <FileList />
+        <Nav />
       </div>
     </div>
   );
