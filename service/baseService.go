@@ -112,6 +112,7 @@ func DownloadFileById(w http.ResponseWriter, r *http.Request) {
 func DeleteFileById(w http.ResponseWriter, r *http.Request) {
 	id, idRequestError := strconv.Atoi(r.URL.Query()["id"][0])
 	if idRequestError != nil {
+		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprint(w, []byte("file not found"))
 	}
 	item := dao.GetItemById(id)
@@ -119,10 +120,13 @@ func DeleteFileById(w http.ResponseWriter, r *http.Request) {
 		if !item.DeletedAt.Valid {
 			dao.UpdateDeletedTime(item)
 			deleteFile(item.Path)
+			w.WriteHeader(http.StatusOK)
 
+			fmt.Fprint(w, []byte(""))
 		}
 	} else {
 
+		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprint(w, []byte("file not found"))
 	}
 }

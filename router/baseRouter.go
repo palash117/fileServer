@@ -22,7 +22,7 @@ const (
 	GET_PAGINATED_PATH  = "/getPaginated"
 	DOWNLOAD_FILE_BY_ID = "/downloadFileById"
 	HOME                = "/home"
-	SERVE               = "/serve/"
+	SERVE               = "/"
 	DELETE_FILE_BY_ID   = "/deleteFileById"
 	PART_FILE_UPLOAD    = "/PartUpload"
 	LOCAL_IP            = "/localIp"
@@ -61,7 +61,11 @@ func Start() {
 
 	http.Handle(BASE_PATH+FILE_SAVE_TEST, handler{FILE_SAVE_TEST, controller.FileSaveTest})
 
-	http.Handle(SERVE, http.StripPrefix(SERVE, http.FileServer(http.Dir("./web"))))
+	http.Handle(SERVE,
+		// http.StripPrefix(
+		// SERVE,
+		http.FileServer(http.Dir("./client/build")))
+	// )
 	path, errx := os.Getwd()
 	if errx != nil {
 		fmt.Printf("error getting working path, %v\n", errx)
