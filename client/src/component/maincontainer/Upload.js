@@ -18,7 +18,6 @@ const Upload = ({ setWait, unsetWait }) => {
     </div>
   );
 };
-
 const mapStateToProps = (state) => ({});
 
 const mapDispatchToProps = { setWait, unsetWait };
