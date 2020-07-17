@@ -6,9 +6,16 @@ import {
   updateProgress,
   unsetProgress,
 } from "../../actions/wait";
+import { getPaginatedFiles } from "../../actions/file";
 import createAndRunSm from "../../uploadlogic/uploadsm";
 
-const Upload = ({ setWait, unsetWait, updateProgress, unsetProgress }) => {
+const Upload = ({
+  setWait,
+  unsetWait,
+  updateProgress,
+  unsetProgress,
+  getPaginatedFiles,
+}) => {
   const startUpload = (e) => {
     // e.preventDefault();
     let file = e.target.files[0];
@@ -21,6 +28,7 @@ const Upload = ({ setWait, unsetWait, updateProgress, unsetProgress }) => {
       () => {
         unsetWait();
         unsetProgress();
+        getPaginatedFiles();
       },
       (progress) => {
         updateProgress(progress);
@@ -45,6 +53,7 @@ const mapDispatchToProps = {
   unsetWait,
   updateProgress,
   unsetProgress,
+  getPaginatedFiles,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Upload);
