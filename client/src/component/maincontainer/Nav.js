@@ -11,11 +11,11 @@ const Nav = ({ fileData, getPaginatedFiles }) => {
   const { pageNo, pageSize } = pageState;
   const nextPage = (e) => {
     e.preventDefault();
-    getPaginatedFiles({ pageNo: pageNo + 1, pageSize });
+    getPaginatedFiles(pageNo + 1, pageSize);
   };
   const prevPage = (e) => {
     e.preventDefault();
-    getPaginatedFiles({ pageNo: pageNo - 1, pageSize });
+    getPaginatedFiles(pageNo - 1, pageSize);
   };
   if (fileData.pageNo !== 0 && fileData.pageNo !== pageNo) {
     setPageState({ pageNo: fileData.pageNo, pageSize: fileData.pageSize });

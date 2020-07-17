@@ -26,7 +26,7 @@ export default function (state = initialState, action) {
     case UPDATE_PROGRESS:
       return {
         ...state,
-        progress: state.progress + payload,
+        progress: payload,
       };
     case UNSET_PROGRESS:
       return {

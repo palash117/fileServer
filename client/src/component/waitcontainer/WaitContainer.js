@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import ProgressBar from "./ProgressBar";
 
 const WaitContainer = ({ isWaiting }) => {
   return (
@@ -7,10 +8,7 @@ const WaitContainer = ({ isWaiting }) => {
       <div class="waitsubcontianer">
         <div class="lds-dual-ring"></div>
         <span class="waitMessage">PLEASE WAIT</span>
-        <div class="statusbar">
-          <div class="statusCompleted"></div>
-          <div class="statusPending"></div>
-        </div>
+        <ProgressBar />
       </div>
     </div>
   );

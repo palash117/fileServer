@@ -1,10 +1,27 @@
-export default function createSm(file, before_func, after_func, ip) {
+import getOriginIp from "./uploadOrigin";
+import {
+  setWait,
+  unsetWait,
+  updateProgress,
+  unsetProgress,
+} from "../actions/wait";
+
+const createAndRunSm = async (file, before_func, after_func, progress_func) => {
+  let ip = await getOriginIp();
+  console.log(before_func);
+  console.log(after_func);
   var exampleSocket = new WebSocket("ws://" + ip + "/fs/PartUpload");
-  return new Sm(file, exampleSocket, before_func, after_func);
-}
+  new Sm(
+    file,
+    exampleSocket,
+    before_func,
+    after_func,
+    progress_func
+  ).transition();
+};
 class Sm {
   // methods
-  constructor(file, websocket, before_func, after_func) {
+  constructor(file, websocket, before_func, after_func, progress_func) {
     this.states = {
       READY: "READY",
       OPEN_WEBSOCKET: "OPEN_WEBSOCKET",
@@ -21,6 +38,7 @@ class Sm {
     };
     this.before_func = before_func;
     this.after_func = after_func;
+    this.progress_func = progress_func;
     //test
     //test over
     this.websocket = websocket;
@@ -117,7 +135,8 @@ class Sm {
   readBytes() {
     this.current_state = this.states.READ_BYTES;
     this.event = this.events.NO_EVENT;
-    updateProgressPercentage((this.offset * 100) / this.filemeta.size);
+    let progressAmount = (this.offset * 100) / this.filemeta.size;
+    this.progress_func(progressAmount);
     this.fileReader.onload = closureTransition(this, this.transition);
     var blob = this.file.slice(this.offset, this.PACKET_SIZE + this.offset);
     this.fileReader.readAsArrayBuffer(blob);
@@ -145,3 +164,5 @@ function closureTransition(ref, func, data) {
     func.call(obj, data);
   };
 }
+
+export default createAndRunSm;
