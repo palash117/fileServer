@@ -8,12 +8,7 @@ import Nav from "./Nav";
 
 const MainContainer = ({ getPaginatedFiles }) => {
   //   setAlert("hello", "danger");
-  useEffect(() => {
-    let key = setInterval(getPaginatedFiles, 5000);
-    return () => {
-      clearInterval(key);
-    };
-  }, []);
+
   return (
     <div className="container">
       <div className="subContiner">
