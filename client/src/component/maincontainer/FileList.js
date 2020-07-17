@@ -1,9 +1,7 @@
-import React, { useEffect, useState, Fragment } from "react";
-import { Moment } from "moment";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { getPaginatedFiles } from "../../actions/file";
 import { PAGE_SIZE } from "../../constants";
-import file from "../../reducers/file";
 import FileItem from "./FileItem";
 
 const FileList = ({ fileData, getPaginatedFiles }) => {
@@ -26,7 +24,7 @@ const FileList = ({ fileData, getPaginatedFiles }) => {
     if (state.files.length === fileData.files.length) {
       same = true;
       for (let i = 0; i < state.files.length; i++) {
-        if (state.files[i].Id != fileData.files[i].Id) {
+        if (state.files[i].Id !== fileData.files[i].Id) {
           same = false;
           break;
         }

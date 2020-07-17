@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Fragment } from "react";
 import { connect } from "react-redux";
 
 const Alert = ({ alerts }) => {
@@ -6,7 +6,7 @@ const Alert = ({ alerts }) => {
 
   return (
     <Fragment>
-      <div class={`alertcontainer ${alerts && alerts.length == 0 && "hide"}`}>
+      <div class={`alertcontainer ${alerts && alerts.length === 0 && "hide"}`}>
         <div class="alertsubcontainer">
           {/* <span class="alertmessage alert-danger"> hello message</span> */}
           {alerts &&

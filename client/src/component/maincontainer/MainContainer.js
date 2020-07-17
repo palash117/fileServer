@@ -4,7 +4,6 @@ import Search from "./Search";
 import FileList from "./FileList";
 import { getPaginatedFiles } from "../../actions/file";
 import { connect } from "react-redux";
-import { PAGE_SIZE } from "../../constants";
 import Nav from "./Nav";
 
 const MainContainer = ({ getPaginatedFiles }) => {

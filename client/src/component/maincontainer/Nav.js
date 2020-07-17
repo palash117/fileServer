@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
 import { getPaginatedFiles } from "../../actions/file";
 import { PAGE_SIZE } from "../../constants";
@@ -17,7 +17,7 @@ const Nav = ({ fileData, getPaginatedFiles }) => {
     e.preventDefault();
     getPaginatedFiles({ pageNo: pageNo - 1, pageSize });
   };
-  if (fileData.pageNo !== 0 && fileData.pageNo != pageNo) {
+  if (fileData.pageNo !== 0 && fileData.pageNo !== pageNo) {
     setPageState({ pageNo: fileData.pageNo, pageSize: fileData.pageSize });
   }
   return (

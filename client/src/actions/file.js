@@ -1,8 +1,9 @@
 import { GET_FILES_PAGINATED } from "./actionTypes";
 import { PAGE_SIZE } from "../constants";
+import { setAlert } from "./alert";
 import axios from "axios";
 
-export const getPaginatedFiles = ({ pageNo, pageSize }) => async (dispatch) => {
+export const getPaginatedFiles = (pageNo, pageSize) => async (dispatch) => {
   try {
     if (!pageNo) {
       pageNo = 1;
@@ -20,4 +21,19 @@ export const getPaginatedFiles = ({ pageNo, pageSize }) => async (dispatch) => {
       });
     }
   } catch (err) {}
+};
+
+export const deleteFileById = (id) => async (dispatch) => {
+  try {
+    if (!id) {
+      // todo
+    }
+    let response = await axios.get(`/fs/deleteFileById?id=${id}`);
+    if (response.status === 200) {
+      dispatch(getPaginatedFiles());
+    }
+  } catch (err) {
+    console.log(err);
+    dispatch(setAlert("err"));
+  }
 };
