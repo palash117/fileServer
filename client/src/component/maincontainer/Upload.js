@@ -39,7 +39,7 @@ const Upload = ({
   return (
     <div class="add">
       <label class="label-upload">
-        <i class="fa fa-upload fa-5x uploadicon" aria-hidden="true"></i>
+        <i class="fa  fa-cloud-upload " aria-hidden="true"></i>
 
         <input type="file" class=" hide" onChange={startUpload}></input>
       </label>
