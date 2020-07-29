@@ -19,6 +19,7 @@ const FileItem = ({ file: { FileName, CreatedAt, Id }, deleteFileById }) => {
             href={`/fs/downloadFileById?id=${Id}`}
             target="_blank"
             class=" fa fa-download"
+            download={`${FileName}`}
           ></a>
         </div>
         <div onClick={deleteFile} class="deletediv fa fa-trash"></div>
