@@ -8,6 +8,7 @@ import {
 } from "../../actions/wait";
 import { getPaginatedFiles } from "../../actions/file";
 import createAndRunSm from "../../uploadlogic/uploadsm";
+import UploadIcon from "../icons/UploadIcon";
 
 const Upload = ({
   setWait,
@@ -39,7 +40,7 @@ const Upload = ({
   return (
     <div class="add">
       <label class="label-upload">
-        <i class="fa  fa-cloud-upload " aria-hidden="true"></i>
+        <UploadIcon></UploadIcon>
 
         <input type="file" class=" hide" onChange={startUpload}></input>
       </label>
