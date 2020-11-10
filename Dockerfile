@@ -2,6 +2,7 @@
 FROM golang
 
 
+
 # Move to working directory /build
 WORKDIR /build
 
@@ -9,7 +10,9 @@ WORKDIR /build
 RUN go get github.com/go-sql-driver/mysql
 RUN go get github.com/jinzhu/gorm
 RUN go get github.com/gorilla/websocket
+# BUILD REACT BUNDLE
 
+# RUN npm run build --prefix client
 
 # COPY ALL LOCAL PACKAGES FILES TO CONTAINER'S WORKSPACE.
 ADD . /go/src/fileServer
