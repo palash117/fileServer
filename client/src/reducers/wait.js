@@ -6,6 +6,9 @@ import {
 } from "../actions/actionTypes";
 const initialState = {
   isWaiting: false,
+  done: 0,
+  total: 0,
+  fileName: "",
   progress: 0,
 };
 
@@ -15,6 +18,9 @@ export default function (state = initialState, action) {
     case SET_WAIT:
       return {
         ...state,
+        fileName: payload.fileName,
+        done: payload.done,
+        total: payload.total,
         isWaiting: true,
       };
 

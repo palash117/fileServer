@@ -5,8 +5,8 @@ import {
   UPDATE_PROGRESS,
 } from "./actionTypes";
 
-export const setWait = () => (dispatch) => {
-  dispatch({ type: SET_WAIT, payload: {} });
+export const setWait = (fileName, done, total) => (dispatch) => {
+  dispatch({ type: SET_WAIT, payload: { fileName, done, total } });
 };
 
 export const unsetWait = () => (dispatch) => {

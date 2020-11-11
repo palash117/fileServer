@@ -19,30 +19,40 @@ const Upload = ({
 }) => {
   const startUpload = (e) => {
     // e.preventDefault();
-    let file = e.target.files[0];
-    console.log(createAndRunSm);
-    createAndRunSm(
-      file,
-      () => {
-        setWait();
-      },
-      () => {
-        unsetWait();
-        unsetProgress();
-        getPaginatedFiles();
-      },
-      (progress) => {
-        updateProgress(progress);
-      }
-    );
-    console.log(file);
+    let files = e.target.files;
+    if (!files) {
+      return;
+    }
+    files = Array.from(files);
+    // console.log(createAndRunSm);
+    files.forEach((file, index) => {
+      createAndRunSm(
+        file,
+        () => {
+          setWait(file.name, index, files.length);
+        },
+        () => {
+          unsetWait();
+          unsetProgress();
+          getPaginatedFiles();
+        },
+        (progress) => {
+          updateProgress(progress);
+        }
+      );
+    });
   };
   return (
     <div class="add">
       <label class="label-upload">
         <UploadIcon></UploadIcon>
 
-        <input type="file" class=" hide" onChange={startUpload}></input>
+        <input
+          type="file"
+          class=" hide"
+          onChange={startUpload}
+          multiple={true}
+        ></input>
       </label>
     </div>
   );
