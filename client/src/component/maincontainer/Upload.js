@@ -25,8 +25,8 @@ const Upload = ({
     }
     files = Array.from(files);
     // console.log(createAndRunSm);
-    files.forEach((file, index) => {
-      createAndRunSm(
+    files.forEach(async (file, index) => {
+      await createAndRunSm(
         file,
         () => {
           setWait(file.name, index, files.length);
