@@ -17,7 +17,7 @@ const Upload = ({
   unsetProgress,
   getPaginatedFiles,
 }) => {
-  const startUpload = (e) => {
+  const startUpload = async (e) => {
     // e.preventDefault();
     let files = e.target.files;
     if (!files) {
@@ -25,11 +25,12 @@ const Upload = ({
     }
     files = Array.from(files);
     // console.log(createAndRunSm);
-    files.forEach(async (file, index) => {
+    for (var i = 0; i < files.length; i++) {
+      var file = files[i];
       await createAndRunSm(
         file,
         () => {
-          setWait(file.name, index, files.length);
+          setWait(file.name, i, files.length);
         },
         () => {
           unsetWait();
@@ -40,7 +41,7 @@ const Upload = ({
           updateProgress(progress);
         }
       );
-    });
+    }
   };
   return (
     <div class="add">
