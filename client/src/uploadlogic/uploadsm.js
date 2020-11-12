@@ -156,6 +156,8 @@ class Sm {
 
     this.offset = 0;
     this.before_func(this.currentFile.name, this.currentFileIndex);
+
+    this.progress_func(0);
     this.current_state = this.states.WRITE_FILE_META;
     this.event = this.events.NO_EVENT;
     this.filemeta = {
