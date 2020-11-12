@@ -27,9 +27,11 @@ class Sm {
       OPEN_WEBSOCKET: "OPEN_WEBSOCKET",
       READ_META: "READ_META",
       WRITE_META: "WRITE_META",
+      WRITE_FILE_META: "WRITE_FILE_META",
       READ_WRITE_CONTINUE_CHECK: "READ_WRITE_CONTINUE_CHECK",
       READ_BYTES: "READ_BYTES",
       WRITE_BYTES: "WRITE_BYTES",
+      FILE_WRITE_COMPLETE: "FILE_WRITE_COMPLETE",
       END: "END",
     };
     this.events = {
@@ -43,6 +45,8 @@ class Sm {
     //test over
     this.websocket = websocket;
     this.file = file;
+    // this.currentFileIndex = 0;
+    // this.currentFile = this.file;
     this.filemeta = {};
     this.websocket.onmessage = closureTransition(this, this.transition);
     this.event = this.events.NO_EVENT;
@@ -77,35 +81,37 @@ class Sm {
       this.createTransitionKey(this.states.OPEN_WEBSOCKET, this.events.NO_EVENT)
     ] = this.openWebSocket; //todo
     this.funcMap[
-      this.createTransitionKey(this.states.READ_META, this.events.NO_EVENT)
+      this.createTransitionKey(this.states.WRITE_META, this.events.NO_EVENT)
     ] = this.writeMeta;
     this.funcMap[
-      this.createTransitionKey(this.states.WRITE_META, this.events.NO_EVENT)
+      this.createTransitionKey(this.states.READ_BYTES, this.events.NO_EVENT)
     ] = this.readBytes;
+
     this.funcMap[
       this.createTransitionKey(this.states.WRITE_BYTES, this.events.NO_EVENT)
-    ] = this.continueCheck;
-    this.funcMap[
-      this.createTransitionKey(
-        this.states.READ_WRITE_CONTINUE_CHECK,
-        this.events.READ_MORE
-      )
-    ] = this.readBytes;
+    ] = this.writeBytes;
+
     this.funcMap[
       this.createTransitionKey(
         this.states.READ_WRITE_CONTINUE_CHECK,
         this.events.NO_EVENT
       )
+    ] = this.continueCheck;
+    this.funcMap[
+      this.createTransitionKey(
+        this.states.FILE_WRITE_COMPLETE,
+        this.events.NO_EVENT
+      )
     ] = this.end;
     this.funcMap[
-      this.createTransitionKey(this.states.READ_BYTES, this.events.NO_EVENT)
+      this.createTransitionKey(this.states.WRITE_BYTES, this.events.NO_EVENT)
     ] = this.writeBytes;
   }
   createTransitionKey(_state, _event) {
     return `${_state}:${_event}`;
   }
   openWebSocket() {
-    this.current_state = this.states.READ_META;
+    this.current_state = this.states.WRITE_META;
     this.event = this.events.NO_EVENT;
     this.websocket.onopen = closureTransition(this, this.transition);
   }
@@ -117,23 +123,23 @@ class Sm {
     this.transition();
   }
   writeMeta() {
-    this.current_state = this.states.WRITE_META;
+    this.current_state = this.states.READ_BYTES;
     this.event = this.events.NO_EVENT;
     this.websocket.send(JSON.stringify(this.filemeta));
     // this.onmessage = closureTransition(this, this.transition);
   }
   continueCheck() {
     if (this.offset >= this.filemeta.size) {
-      this.current_state = this.states.READ_WRITE_CONTINUE_CHECK;
+      this.current_state = this.states.FILE_WRITE_COMPLETE;
       this.event = this.events.NO_EVENT;
     } else {
-      this.current_state = this.states.READ_WRITE_CONTINUE_CHECK;
-      this.event = this.events.READ_MORE;
+      this.current_state = this.states.READ_BYTES;
+      this.event = this.events.NO_EVENT;
     }
     this.transition();
   }
   readBytes() {
-    this.current_state = this.states.READ_BYTES;
+    this.current_state = this.states.WRITE_BYTES;
     this.event = this.events.NO_EVENT;
     let progressAmount = (this.offset * 100) / this.filemeta.size;
     this.progress_func(progressAmount);
@@ -143,7 +149,7 @@ class Sm {
   }
 
   writeBytes(data) {
-    this.current_state = this.states.WRITE_BYTES;
+    this.current_state = this.states.READ_WRITE_CONTINUE_CHECK;
     this.event = this.events.NO_EVENT;
 
     var byteData = this.fileReader.result;
