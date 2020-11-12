@@ -27,6 +27,7 @@ const (
 	PART_FILE_UPLOAD    = "/PartUpload"
 	LOCAL_IP            = "/localIp"
 	FILE_SAVE_TEST      = "/fileSaveTest"
+	CREATE_FOLDER       = "/createfolder"
 )
 
 type handler struct {
@@ -53,6 +54,8 @@ func Start() {
 	http.Handle(BASE_PATH+DOWNLOAD_FILE_BY_ID, handler{DOWNLOAD_FILE_BY_ID, controller.DownloadFileById})
 
 	http.Handle(BASE_PATH+DELETE_FILE_BY_ID, handler{DELETE_FILE_BY_ID, controller.DeleteFileById})
+
+	http.Handle(BASE_PATH+CREATE_FOLDER, handler{CREATE_FOLDER, controller.CreateFolder})
 
 	partUploadFunction := wrappercontroller.WrapWithConcurrencyLimiter(uploadRateLimiter, controller.PartUpload)
 	http.Handle(BASE_PATH+PART_FILE_UPLOAD, handler{PART_FILE_UPLOAD, partUploadFunction})

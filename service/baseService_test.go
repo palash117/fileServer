@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"strconv"
 	"testing"
@@ -75,10 +76,29 @@ func TestAppendToFile(t *testing.T) {
 		for j := i * limit; j < (i*limit + size); j++ {
 			messagePart[j-(i*limit)] = message[j]
 		}
-		AppendToFile(messagePart, filename)
+		AppendToFile(&messagePart, filename)
 	}
 	// if err := AppendToFile(tt.args.message, tt.args.filepath); (err != nil) != tt.wantErr {
 	// 	t.Errorf("AppendToFile() error = %v, wantErr %v", err, tt.wantErr)
 	// }
+
+}
+
+func Test_createFolder(t *testing.T) {
+	defer func(value *string) {
+		BASE_FILE_PATH = *value
+
+	}(&BASE_FILE_PATH)
+
+	// rand.Seed(100000);
+	randomName := "folderName" + strconv.Itoa(rand.Intn(1000000))
+	err := createFolder(randomName)
+	if err != nil {
+		t.Error("error creating folder with name", randomName)
+	}
+	err = createFolder(randomName)
+	if err == nil {
+		t.Error("error; should fail as folder already present", randomName)
+	}
 
 }

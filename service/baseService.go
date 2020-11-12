@@ -22,19 +22,98 @@ var (
 )
 
 func UploadFileAndsaveToDb(w http.ResponseWriter, r *http.Request) {
-	fileName, filePath, err := saveDataToFile(w, r)
+	fileName, filePath, parentID, err := saveDataToFile(w, r)
 	if err != nil {
 		fmt.Println(err)
 		fmt.Fprint(w, []byte("failure"))
 	} else {
-		item := (models.MakeItem(fileName, filePath, time.Now()))
+		item := (models.MakeItem(fileName, filePath, time.Now(), parentID))
 		dao.SaveItem(item)
 		fmt.Fprint(w, []byte("success"))
 	}
 
 }
 
-func saveDataToFile(w http.ResponseWriter, r *http.Request) (fileName string, filePath string, retErr error) {
+func CreateFolder(w http.ResponseWriter, r *http.Request) {
+	folderName := getFolderName(w, r)
+	if folderName == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("folderName missing"))
+		return
+	}
+	folderNamePresent := checkIfFolderIsPresent(folderName)
+	if folderNamePresent {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("folderName already present " + folderName))
+		return
+	}
+	folderPath, err := createFolder(folderName)
+	if err != nil {
+
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("error creating folderName, " + err.Error()))
+	} else {
+		folderItem := models.MakeFolder(folderName, folderPath, time.Now())
+		dao.SaveItem(folderItem)
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("folder created with name " + folderName))
+	}
+}
+
+// func DeleteFolder(w http.ResponseWriter, r *http.Request) {
+// 	folderName := getFolderName(w, r)
+
+// 	if folderName == "" {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		w.Write([]byte("folderName missing"))
+// 		return
+
+// 	}
+// 	folderNamePresent := checkIfFolderIsPresent(folderName)
+
+// 	if !folderNamePresent {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		w.Write([]byte("folderName not present " + folderName))
+// 		return
+// 	}
+
+// 	go deleteFolder(folderName)
+
+// 	w.WriteHeader(http.StatusOK)
+// 	w.Write([]byte("folder marked for deletion " + folderName))
+// 	return
+// }
+
+// func deleteFolder(folderName string) {
+
+// 	folderPath := BASE_FILE_PATH + string(os.PathSeparator) + folderName
+
+// }
+
+func createFolder(folderName string) (folderPath string, err error) {
+	folderPath = BASE_FILE_PATH + string(os.PathSeparator) + folderName
+	err = os.Mkdir(folderPath, os.ModeDir)
+	return folderPath, err
+}
+
+func checkIfFolderIsPresent(folderName string) bool {
+	_, err := os.OpenFile(BASE_FILE_PATH+string(os.PathSeparator)+folderName, os.O_RDONLY, os.ModeDir)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+func getFolderName(w http.ResponseWriter, r *http.Request) string {
+	return r.URL.Query()["folderName"][0]
+}
+
+func saveDataToFile(w http.ResponseWriter, r *http.Request) (fileName string, filePath string, parentID int, retErr error) {
+
+	parentID = -1
+	if r.URL.Query()["parentId"] != nil {
+		parentID, _ = strconv.Atoi(r.URL.Query()["parentId"][0])
+	}
 	// Parse our multipart form, 10 << 20 specifies a maximum
 	// upload of 10 MB files.
 	r.ParseMultipartForm(10 << 20)
@@ -149,7 +228,7 @@ func StreamUpload(c *websocket.Conn) {
 	defer c.Close()
 	// create db entry
 	dao.SaveItem(models.MakeItem(fileData.Name, BASE_FILE_PATH+"/"+
-		fileData.Name, time.Now()))
+		fileData.Name, time.Now(), -1))
 	fmt.Printf("recieved file struct: %v\n", fileData)
 	// ask for data from client
 	c.WriteMessage(1, []byte(SEND_DATA))

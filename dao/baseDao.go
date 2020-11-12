@@ -23,7 +23,7 @@ func ReadyDb() {
 	log.Println("Connection Established")
 	//db.Debug().DropTableIfExists(&models.Item{})
 	//////Drops table if already exists
-	//db.Debug().AutoMigrate(&models.Item{})
+	// db.Debug().AutoMigrate(&models.Item{})
 	dbInst = db
 	fmt.Println("dbname,", db.CommonDB())
 }

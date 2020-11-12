@@ -37,6 +37,11 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	service.UploadFileAndsaveToDb(w, r)
 }
 
+func CreateFolder(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Folder Create Endpoint Hit")
+	service.CreateFolder(w, r)
+}
+
 func Health(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, "file server is up")
 }
