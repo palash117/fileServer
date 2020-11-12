@@ -222,40 +222,49 @@ func deleteFile(path string) {
 }
 
 func StreamUpload(c *websocket.Conn) {
-	var fileData dto.Filestruct
-	c.ReadJSON(&fileData)
-	//defer close connection
-	defer c.Close()
-	// create db entry
-	dao.SaveItem(models.MakeItem(fileData.Name, BASE_FILE_PATH+"/"+
-		fileData.Name, time.Now(), -1))
-	fmt.Printf("recieved file struct: %v\n", fileData)
-	// ask for data from client
+	var multpiplefilesData dto.MultipleFilesData
+	c.ReadJSON(&multpiplefilesData)
+
+	parentID := multpiplefilesData.ParentID
 	c.WriteMessage(1, []byte(SEND_DATA))
-	// get bytes in batches
-	byteCount := int(0)
-	fileSize := fileData.Size
-	for byteCount < fileData.Size {
-		_, message, messageRetrievalError := c.ReadMessage()
-		if messageRetrievalError != nil {
-			fmt.Printf("error :%v\n", messageRetrievalError)
-		}
-		filePath := BASE_FILE_PATH + string(os.PathSeparator) + fileData.Name
-		// save batches to file
-		appendError := AppendToFile(&message, filePath)
-		if appendError != nil {
-			fmt.Printf("error while appending data to file %v\n", appendError)
-		}
 
-		// update client to send more
-		// time.Sleep(10 * time.Second)
-		c.WriteMessage(websocket.TextMessage, SEND_DATA)
-		byteCount += len(message)
-		percentage := (byteCount * 100) / fileData.Size
-		fmt.Printf("recieved percentage %d %% , %d out of %d \n", percentage, byteCount, fileSize)
+	defer c.Close()
+	for count := 0; count < multpiplefilesData.NoOfFiles; count++ {
+
+		var fileData dto.Filestruct
+		c.ReadJSON(&fileData)
+		//defer close connection
+		// create db entry
+		dao.SaveItem(models.MakeItem(fileData.Name, BASE_FILE_PATH+"/"+
+			fileData.Name, time.Now(), parentID))
+		fmt.Printf("recieved file struct: %v\n", fileData)
+		// ask for data from client
+		c.WriteMessage(1, []byte(SEND_DATA))
+		// get bytes in batches
+		byteCount := int(0)
+		fileSize := fileData.Size
+		for byteCount < fileData.Size {
+			_, message, messageRetrievalError := c.ReadMessage()
+			if messageRetrievalError != nil {
+				fmt.Printf("error :%v\n", messageRetrievalError)
+			}
+			filePath := BASE_FILE_PATH + string(os.PathSeparator) + fileData.Name
+			// save batches to file
+			appendError := AppendToFile(&message, filePath)
+			if appendError != nil {
+				fmt.Printf("error while appending data to file %v\n", appendError)
+			}
+
+			// update client to send more
+			// time.Sleep(10 * time.Second)
+			c.WriteMessage(websocket.TextMessage, SEND_DATA)
+			byteCount += len(message)
+			percentage := (byteCount * 100) / fileData.Size
+			fmt.Printf("recieved percentage %d %% , %d out of %d \n", percentage, byteCount, fileSize)
+		}
+		fmt.Printf("file upload complete ")
 	}
-	fmt.Printf("file upload complete ")
-
+	fmt.Println("all files upload complete")
 	// on completion update db entry as completed
 	// send message completed to client
 }

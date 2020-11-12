@@ -18,3 +18,8 @@ type FilesResponse struct {
 	Id        int
 	CreatedAt string
 }
+
+type MultipleFilesData struct {
+	ParentID  int `json:"parentID"`
+	NoOfFiles int `json:"noOfFiles"`
+}
