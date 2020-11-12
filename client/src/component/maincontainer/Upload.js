@@ -25,23 +25,21 @@ const Upload = ({
     }
     files = Array.from(files);
     // console.log(createAndRunSm);
-    for (var i = 0; i < files.length; i++) {
-      var file = files[i];
-      await createAndRunSm(
-        file,
-        () => {
-          setWait(file.name, i, files.length);
-        },
-        () => {
-          unsetWait();
-          unsetProgress();
-          getPaginatedFiles();
-        },
-        (progress) => {
-          updateProgress(progress);
-        }
-      );
-    }
+    createAndRunSm(
+      files,
+      (fileName, index) => {
+        setWait(fileName, index, files.length);
+      },
+      () => {
+        unsetWait();
+        unsetProgress();
+        getPaginatedFiles();
+      },
+      (progress) => {
+        updateProgress(progress);
+      },
+      -1
+    );
   };
   return (
     <div class="add">
