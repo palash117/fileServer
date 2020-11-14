@@ -231,7 +231,7 @@ func StreamUpload(c *websocket.Conn) {
 	c.WriteMessage(1, []byte(SEND_DATA))
 	var parentFolder *models.Item
 	if parentID != -1 {
-		parentFolder = dao.GetItemById(parentId)
+		parentFolder = dao.GetItemById(parentID)
 	}
 
 	defer c.Close()
