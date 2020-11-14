@@ -2,15 +2,12 @@ package controller
 
 import (
 	"encoding/json"
-	"fileServer/dao"
 	"fileServer/dto"
 	"fileServer/service"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
-	"strconv"
-	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -47,35 +44,11 @@ func Health(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetPaginatedItems(w http.ResponseWriter, r *http.Request) {
-	pageNo := r.URL.Query().Get("pageNo")
-	pageSize := r.URL.Query().Get("pageSize")
-	var pageNoInt int64
-	var pageSizeInt int64
-	pageNoInt, pageNoErr := strconv.ParseInt(pageNo, 0, 64)
-	if pageNoErr != nil {
-		pageNoInt = 1
-	}
-	pageSizeInt, pageSizeErr := strconv.ParseInt(pageSize, 0, 64)
-	if pageSizeErr != nil {
-		pageSizeInt = 7
-	}
-	data := dao.GetItemsPaginated(pageNoInt, pageSizeInt)
-	var response []*dto.FilesResponse
-	for _, item := range data {
-		var file = new(dto.FilesResponse)
-		file.FileName = item.FileName
-		if len(file.FileName) > 60 {
-			file.FileName = item.FileName[0:30] + "..." + item.FileName[len(item.FileName)-30:len(item.FileName)]
-		}
-		file.CreatedAt = item.CreatedAt.Format(time.RFC3339)
-		file.Id = item.Id
+	service.GetPaginatedItems(w, r)
+}
 
-		response = append(response, file)
-	}
-	w.Header().Add("ContentType", "Application/Json")
-	w.WriteHeader(http.StatusOK)
-	jsonDto, _ := json.Marshal(response)
-	w.Write(jsonDto)
+func GetFilesByParentId(w http.ResponseWriter, r *http.Request) {
+	service.GetFilesByParentId(w, r)
 }
 
 func DownloadFileById(w http.ResponseWriter, r *http.Request) {

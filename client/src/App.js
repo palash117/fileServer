@@ -6,14 +6,15 @@ import Alert from "./component/alert/Alert";
 import WaitContianer from "./component/waitcontainer/WaitContainer";
 import store from "./Store";
 import { Provider } from "react-redux";
+import FolderContainer from "./component/folderContainer/FolderContainer";
 
 function App() {
   return (
     <Provider store={store}>
       <Fragment>
-        <Alert />
+        {/* <Alert /> */}
         <MainContianer />
-        <WaitContianer />
+        {/* <WaitContianer /> */}
       </Fragment>
     </Provider>
   );

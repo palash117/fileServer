@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"fileServer/dao"
 	"fileServer/dto"
 	"fileServer/models"
@@ -56,7 +57,8 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 		folderItem := models.MakeFolder(folderName, folderPath, time.Now())
 		dao.SaveItem(folderItem)
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("folder created with name " + folderName))
+		jsonData, _ := json.Marshal(folderItem)
+		w.Write(jsonData)
 	}
 }
 
@@ -227,6 +229,10 @@ func StreamUpload(c *websocket.Conn) {
 
 	parentID := multpiplefilesData.ParentID
 	c.WriteMessage(1, []byte(SEND_DATA))
+	var parentFolder *models.Item
+	if parentID != -1 {
+		parentFolder = dao.GetItemById(parentId)
+	}
 
 	defer c.Close()
 	for count := 0; count < multpiplefilesData.NoOfFiles; count++ {
@@ -235,6 +241,11 @@ func StreamUpload(c *websocket.Conn) {
 		c.ReadJSON(&fileData)
 		//defer close connection
 		// create db entry
+
+		filePath := BASE_FILE_PATH + string(os.PathSeparator) + fileData.Name
+		if parentID != -1 {
+			filePath = parentFolder.Path + string(os.PathSeparator) + fileData.Name
+		}
 		dao.SaveItem(models.MakeItem(fileData.Name, BASE_FILE_PATH+"/"+
 			fileData.Name, time.Now(), parentID))
 		fmt.Printf("recieved file struct: %v\n", fileData)
@@ -248,7 +259,6 @@ func StreamUpload(c *websocket.Conn) {
 			if messageRetrievalError != nil {
 				fmt.Printf("error :%v\n", messageRetrievalError)
 			}
-			filePath := BASE_FILE_PATH + string(os.PathSeparator) + fileData.Name
 			// save batches to file
 			appendError := AppendToFile(&message, filePath)
 			if appendError != nil {
@@ -306,4 +316,71 @@ func FileSaveTest() string {
 		return fmt.Sprintf("Error while removing new file with path , %s, %v", filepath, removeErr)
 	}
 	return fmt.Sprintf("success with filename %s", filepath)
+}
+
+func GetFilesByParentId(w http.ResponseWriter, r *http.Request) {
+	parentID := getParentIDFromRequestURL(r)
+	if parentID == -1 {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	data := dao.GetItemsByParentID(parentID)
+
+	if len(data) == 0 {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	responseData := convertToFileDTO(data)
+
+	responseJson, _ := json.Marshal(responseData)
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(responseJson)
+}
+
+func convertToFileDTO(data []models.Item) []*dto.FilesResponse {
+	var response []*dto.FilesResponse
+	for _, item := range data {
+		var file = new(dto.FilesResponse)
+		file.FileName = item.FileName
+		if len(file.FileName) > 60 {
+			file.FileName = item.FileName[0:30] + "..." + item.FileName[len(item.FileName)-30:len(item.FileName)]
+		}
+		file.CreatedAt = item.CreatedAt.Format(time.RFC3339)
+		file.Id = item.Id
+		file.ParentID = item.ParentId
+		file.IsDir = item.IsDir
+		response = append(response, file)
+	}
+	return response
+}
+
+func getParentIDFromRequestURL(r *http.Request) int {
+
+	parentID := -1
+	if r.URL.Query()["parentID"] != nil {
+		parentID, _ = strconv.Atoi(r.URL.Query()["parentID"][0])
+	}
+	return parentID
+}
+
+func GetPaginatedItems(w http.ResponseWriter, r *http.Request) {
+	pageNo := r.URL.Query().Get("pageNo")
+	pageSize := r.URL.Query().Get("pageSize")
+	var pageNoInt int64
+	var pageSizeInt int64
+	pageNoInt, pageNoErr := strconv.ParseInt(pageNo, 0, 64)
+	if pageNoErr != nil {
+		pageNoInt = 1
+	}
+	pageSizeInt, pageSizeErr := strconv.ParseInt(pageSize, 0, 64)
+	if pageSizeErr != nil {
+		pageSizeInt = 7
+	}
+	data := dao.GetItemsPaginated(pageNoInt, pageSizeInt)
+	response := convertToFileDTO(data)
+	w.Header().Add("ContentType", "Application/Json")
+	w.WriteHeader(http.StatusOK)
+	jsonDto, _ := json.Marshal(response)
+	w.Write(jsonDto)
 }

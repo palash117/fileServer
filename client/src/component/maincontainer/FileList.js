@@ -39,7 +39,7 @@ const FileList = ({ fileData, getPaginatedFiles }) => {
       {state.files.length > 0 ? (
         <table class="filelisttable">
           <thead class="filelistheader">
-            <th class="filelistheader cell">filename</th>
+            <td class="filelistheader cell">filename</td>
 
             <td class="filelistheader cell">uploaded on</td>
 

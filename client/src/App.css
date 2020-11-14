@@ -6,7 +6,7 @@
 }
 html,
 body {
-  min-height: 100%;
+  /* min-height: 100%; */
 }
 body {
   height: 100vh;
@@ -29,11 +29,13 @@ body {
 .container {
   /* margin: 10px; */
   display: flex;
-  height: 100vh;
-  /* height: 100%; */
+  /* height: 100vh; */
+  height: 100%;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  border: 2px dashed black;
+  /* background-color:; */
 }
 
 .subContiner {
@@ -45,6 +47,7 @@ body {
   flex-direction: column;
   align-items: center;
   /* overflow-y: scroll; */
+  border: 2px dashed red;
 }
 
 .add {
@@ -228,25 +231,89 @@ body {
   visibility: hidden;
 }
 
-@media only screen and (max-width: 1120px) {
-  /* For mobile phones: */
-  body {
-    /* width: 100%; */
-    /* background-color: white; */
-  }
-  .add {
-    margin: 10px;
-    padding: 10px;
-  }
-  .uploadicon {
-    transform: scale(0.5);
-    margin: 0;
-    padding: 0;
-  }
-  .filelist {
-    font-size: 90%;
-  }
-  .filename {
-    max-width: 200px;
-  }
+.createfolder {
+  border: 1px solid white;
+  border-radius: 15px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.folder-container {
+  position: absolute;
+  /* top: 50%;
+  left: 50%; */
+  border: 1px solid white;
+  /* width: 400px;
+  height: 400px; */
+  width: 100%;
+  height: 110%;
+  background-color: rgba(0, 0, 0, 0.7);
+  /* transform: translate3d(-50%, -50%, 0); */
+  /* background-color: ; */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.folder-subcontainer {
+  width: 80%;
+  min-width: 400px;
+  height: 80%;
+  background-color: grey;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+}
+.foldername {
+  width: 100%;
+  text-align: center;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.addtofolder {
+  margin: 10px;
+  /* border: 1px solid black; */
+  width: 50px;
+  /* height: 20px; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  /* border-radius: 10px; */
+}
+.closefolder {
+  margin: 10px;
+  border: 1px solid black;
+  width: 50px;
+  /* height: 20px; */
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  border-radius: 10px;
+}
+.folderfiles {
+  /* margin: 20px; */
+  border: 1px dashed black;
+  width: 100%;
+  height: 100%;
+  /* grid-template-columns: 100px 50px 100px;
+  grid-template-rows: 80px auto 80px;
+  column-gap: 10px;
+  row-gap: 15px; */
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  overflow-y: scroll;
+}
+
+.folderfile {
+  width: 200px;
+  height: 200px;
+  margin: 10px;
+  border: 2px solid black;
+  border-radius: 10px;
 }

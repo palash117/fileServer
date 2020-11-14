@@ -35,9 +35,15 @@ func SaveItem(item *models.Item) {
 
 }
 
+func GetItemsByParentID(parentID int) []models.Item {
+	data := []models.Item{}
+	dbInst.Where("deleted_at is null AND parent_id = ?", parentID).Find(&data)
+	return data
+}
+
 func GetItemsPaginated(pageNo int64, pageSize int64) []models.Item {
 	data := []models.Item{}
-	dbInst.Where("deleted_at is null").Offset((pageNo - 1) * pageSize).Limit(pageSize).Find(&data)
+	dbInst.Where("deleted_at is null AND parent_id = ?", -1).Offset((pageNo - 1) * pageSize).Limit(pageSize).Find(&data)
 	return data
 }
 

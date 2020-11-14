@@ -17,6 +17,8 @@ type FilesResponse struct {
 	FileName  string
 	Id        int
 	CreatedAt string
+	IsDir     bool
+	ParentID  int
 }
 
 type MultipleFilesData struct {
