@@ -228,6 +228,9 @@ func StreamUpload(c *websocket.Conn) {
 	c.ReadJSON(&multpiplefilesData)
 
 	parentID := multpiplefilesData.ParentID
+
+	fmt.Println("multipleFilesData json is ", multpiplefilesData)
+
 	c.WriteMessage(1, []byte(SEND_DATA))
 	var parentFolder *models.Item
 	if parentID != -1 {
