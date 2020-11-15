@@ -20,7 +20,7 @@ func MakeItem(fileName string, filePath string, createdAt time.Time, parentId in
 	return &Item{0, createdAt, mysql.NullTime{}, fileName, filePath, false, parentId}
 }
 
-func MakeFolder(folderName string, folderPath string, createdAt time.Time) *Item {
-	return &Item{0, createdAt, mysql.NullTime{}, folderName, folderPath, true, -1}
+func MakeFolder(folderName string, folderPath string, createdAt time.Time, parentId int) *Item {
+	return &Item{0, createdAt, mysql.NullTime{}, folderName, folderPath, true, parentId}
 
 }

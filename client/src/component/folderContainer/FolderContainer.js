@@ -1,13 +1,21 @@
 import React from "react";
 import createAndRunSm from "../../uploadlogic/uploadsm";
 import UploadIcon from "../icons/UploadIcon";
+import CreateFolderIcon from "../icons/CreateFolderIcon";
+// import { createFolder } from "../../actions/folderData";
 import {
   setWait,
   unsetWait,
   updateProgress,
   unsetProgress,
 } from "../../actions/wait";
-import { closeFolder, selectFolder } from "../../actions/folderData";
+import {
+  closeFolder,
+  createFolder,
+  selectFolder,
+  refreshFolder,
+} from "../../actions/folderData";
+import { setAlert } from "../../actions/alert";
 import { deleteFileById } from "../../actions/file";
 import { connect } from "react-redux";
 
@@ -20,17 +28,32 @@ const FolderContainer = ({
   unsetProgress,
   deleteFileById,
   selectFolder,
+  createFolder,
+  setAlert,
+  refreshFolder,
 }) => {
-  const { showFolderContainer, folderData, childrenFiles, loading } =
-    folderDataState == null ? {} : folderDataState;
+  const {
+    showFolderContainer,
+    folderData,
+    childrenFiles,
+    loading,
+    breadCrumb,
+  } = folderDataState == null ? {} : folderDataState;
   console.log("folderDataState is ", folderDataState);
 
-  var refreshFolder = () => {
-    selectFolder(folderData);
-  };
   var close = () => {
     closeFolder();
   };
+
+  var innerCreateFolder = () => {
+    var foldername = window.prompt("please enter folder name");
+    if (!(foldername == "" || foldername === null)) {
+      createFolder(foldername, folderData.Id);
+    } else {
+      setAlert("please enter a valid foldername!", 2000);
+    }
+  };
+
   var addFiles = (e) => {
     console.log("clickeed add files");
     let files = e.target.files;
@@ -55,23 +78,34 @@ const FolderContainer = ({
       folderData.Id
     );
   };
+  var refresh = () => {
+    refreshFolder(folderData);
+  };
   return (
     <div className={"folder-container"}>
       {" "}
       <div className="folder-subcontainer">
         <div className="foldername">
-          <label className="addtofolder">
-            <UploadIcon size={"small"}></UploadIcon>
-            <input
-              type="file"
-              class=" hide"
-              onChange={addFiles}
-              multiple={true}
-            ></input>
-            {/* <p>add</p> */}
-          </label>
+          <div className="folderactions">
+            <label className="addtofolder">
+              <UploadIcon size={"small"}></UploadIcon>
+              <input
+                type="file"
+                class=" hide"
+                onChange={addFiles}
+                multiple={true}
+              ></input>
+              {/* <p>add</p> */}
+            </label>
+            <div className="innerCreateFolder" onClick={innerCreateFolder}>
+              <CreateFolderIcon size={"small"}></CreateFolderIcon>
+            </div>
+            <div className="refreshFolder" onClick={refresh}>
+              <p>refresh</p>
+            </div>
+          </div>
           <div className="foldernamevalue">
-            <p>{folderData.FileName}</p>
+            <p>{breadCrumb}</p>
           </div>
           <div className="closefolder" onClick={close}>
             <p>x</p>
@@ -85,8 +119,9 @@ const FolderContainer = ({
               <FolderFile
                 fileData={fl}
                 deleteFileById={deleteFileById}
-                refreshFolder={refreshFolder}
+                refresh={refresh}
                 key={fl.Id}
+                selectFolder={selectFolder}
               />
             ))
           )}
@@ -96,19 +131,27 @@ const FolderContainer = ({
   );
 };
 
-var FolderFile = ({ fileData, deleteFileById, refreshFolder }) => {
+var FolderFile = ({ fileData, deleteFileById, refresh, selectFolder }) => {
   console.log("fileData is ", fileData);
   const deleteFile = (e) => {
     if (
       window.confirm("Do you want to delete file " + fileData.FileName + "?")
     ) {
       deleteFileById(fileData.Id);
-      refreshFolder();
+      refresh();
+    }
+  };
+  var openf = () => {
+    if (fileData.IsDir) {
+      console.log("opening folder");
+      selectFolder(fileData);
     }
   };
   return (
     <div className="folderfile">
-      <div className="filename">{fileData.FileName}</div>
+      <div className="filename" onClick={openf}>
+        {fileData.FileName}
+      </div>
       <div className="filetype">{fileData.IsDir ? "folder" : "file"}</div>
       {!fileData.IsDir && (
         <div className="filedownload">
@@ -124,19 +167,7 @@ var FolderFile = ({ fileData, deleteFileById, refreshFolder }) => {
       )}
 
       {!fileData.isDir && (
-        <div
-          onClick={() => {
-            if (
-              window.confirm(
-                "Do you want to delete file " + fileData.FileName + "?"
-              )
-            ) {
-              deleteFile();
-            } else {
-            }
-          }}
-          className="filedelete fa fa-trash"
-        >
+        <div onClick={deleteFile} className="filedelete fa fa-trash">
           delete
         </div>
       )}
@@ -164,5 +195,8 @@ const mapDispatchToProps = {
   updateProgress,
   unsetProgress,
   deleteFileById,
+  createFolder,
+  setAlert,
+  refreshFolder,
 };
 export default connect(mapStateToProps, mapDispatchToProps)(FolderContainer);

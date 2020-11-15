@@ -1,42 +1,47 @@
 package deleteProcessor
 
-var fileToDeleteChan chan string
-const (workForce= 10)
+import "fileServer/models"
 
-func worker(){
-	for{
-		file<- fileToDeleteChan;
+var fileToDeleteChan chan *models.Item
+
+const (
+	workForce = 10
+)
+
+func worker() {
+	for {
+		file := <-fileToDeleteChan
 		deleteFileOrFolder(file)
 	}
 
 }
 
-func initWorkers(){
-	for i:=0;i<workForce;i++{
+func initWorkers() {
+	for i := 0; i < workForce; i++ {
 		go worker()
 	}
 }
 
-func init(){
-	fileToDeleteChan:= make(chan string, 50)
-	initWorkers();
+func init() {
+	fileToDeleteChan = make(chan *models.Item, 50)
+	initWorkers()
 }
 
-func AddToDeleteChan(fileName string){
-	fileToDeleteChan<- fileName;
+func AddToDeleteChan(file *models.Item) {
+	fileToDeleteChan <- file
 }
 
-func deleteFileOrFolder(name string)  {
-	if isFolder(name){
-		go deleteFolder(name)
-	}else{
-		deleteFile(name)
+func deleteFileOrFolder(file *models.Item) {
+	if file.IsDir {
+		deleteFile(file)
+	} else {
+		deleteFolder(file)
 	}
 }
 
-func deleteFolder(folderName string){
+func deleteFolder(file *models.Item) {
 
 }
-func deleteFile(fileName string){
-	
+func deleteFile(file *models.Item) {
+
 }

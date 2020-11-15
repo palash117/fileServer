@@ -12,7 +12,7 @@ function App() {
   return (
     <Provider store={store}>
       <Fragment>
-        {/* <Alert /> */}
+        <Alert />
         <MainContianer />
         <WaitContianer />
       </Fragment>

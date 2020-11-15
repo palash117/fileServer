@@ -37,24 +37,30 @@ func UploadFileAndsaveToDb(w http.ResponseWriter, r *http.Request) {
 
 func CreateFolder(w http.ResponseWriter, r *http.Request) {
 	folderName := getFolderName(w, r)
+	parentID := getParentIDFromRequestURL(r)
+	var parentFolder *models.Item
+	parentFolder = nil
+	if parentID != -1 {
+		parentFolder = dao.GetItemById(parentID)
+	}
 	if folderName == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("folderName missing"))
 		return
 	}
-	folderNamePresent := checkIfFolderIsPresent(folderName)
+	folderNamePresent := checkIfFolderIsPresent(folderName, parentFolder)
 	if folderNamePresent {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("folderName already present " + folderName))
 		return
 	}
-	folderPath, err := createFolder(folderName)
+	folderPath, err := createFolder(folderName, parentFolder)
 	if err != nil {
 
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("error creating folderName, " + err.Error()))
 	} else {
-		folderItem := models.MakeFolder(folderName, folderPath, time.Now())
+		folderItem := models.MakeFolder(folderName, folderPath, time.Now(), parentID)
 		dao.SaveItem(folderItem)
 		w.WriteHeader(http.StatusOK)
 		jsonData, _ := json.Marshal(folderItem)
@@ -92,14 +98,21 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 
 // }
 
-func createFolder(folderName string) (folderPath string, err error) {
+func createFolder(folderName string, parentFolder *models.Item) (folderPath string, err error) {
 	folderPath = BASE_FILE_PATH + string(os.PathSeparator) + folderName
+	if parentFolder != nil {
+		folderPath = parentFolder.Path + string(os.PathSeparator) + folderName
+	}
 	err = os.Mkdir(folderPath, os.ModeDir)
 	return folderPath, err
 }
 
-func checkIfFolderIsPresent(folderName string) bool {
-	_, err := os.OpenFile(BASE_FILE_PATH+string(os.PathSeparator)+folderName, os.O_RDONLY, os.ModeDir)
+func checkIfFolderIsPresent(folderName string, parentFolder *models.Item) bool {
+	filePath := BASE_FILE_PATH + string(os.PathSeparator) + folderName
+	if parentFolder != nil {
+		filePath = parentFolder.Path + string(os.PathSeparator) + folderName
+	}
+	_, err := os.OpenFile(filePath, os.O_RDONLY, os.ModeDir)
 	if err != nil {
 		return false
 	}
