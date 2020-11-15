@@ -99,7 +99,9 @@ const FolderContainer = ({
 var FolderFile = ({ fileData, deleteFileById, refreshFolder }) => {
   console.log("fileData is ", fileData);
   const deleteFile = (e) => {
-    if (window.confirm("Do you want to delete file " + FileName + "?")) {
+    if (
+      window.confirm("Do you want to delete file " + fileData.FileName + "?")
+    ) {
       deleteFileById(fileData.Id);
       refreshFolder();
     }
