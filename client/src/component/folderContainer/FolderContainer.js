@@ -8,6 +8,7 @@ import {
   unsetProgress,
 } from "../../actions/wait";
 import { closeFolder, selectFolder } from "../../actions/folderData";
+import { deleteFileById } from "../../actions/file";
 import { connect } from "react-redux";
 
 const FolderContainer = ({
@@ -17,20 +18,16 @@ const FolderContainer = ({
   unsetWait,
   updateProgress,
   unsetProgress,
+  deleteFileById,
+  selectFolder,
 }) => {
   const { showFolderContainer, folderData, childrenFiles, loading } =
     folderDataState == null ? {} : folderDataState;
   console.log("folderDataState is ", folderDataState);
-  var fileItems = [
-    {
-      FileName: "partypopper.png",
-      Id: 324,
-      CreatedAt: "2020-11-13T14:45:15Z",
-      IsDir: false,
-      ParentID: 323,
-    },
-  ];
 
+  var refreshFolder = () => {
+    selectFolder(folderData);
+  };
   var close = () => {
     closeFolder();
   };
@@ -84,7 +81,14 @@ const FolderContainer = ({
           {folderData && loading ? (
             <p>Loading</p>
           ) : (
-            childrenFiles.map((fl) => <FolderFile fileData={fl} key={fl.Id} />)
+            childrenFiles.map((fl) => (
+              <FolderFile
+                fileData={fl}
+                deleteFileById={deleteFileById}
+                refreshFolder={refreshFolder}
+                key={fl.Id}
+              />
+            ))
           )}
         </div>
       </div>
@@ -92,8 +96,14 @@ const FolderContainer = ({
   );
 };
 
-var FolderFile = ({ fileData }) => {
+var FolderFile = ({ fileData, deleteFileById, refreshFolder }) => {
   console.log("fileData is ", fileData);
+  const deleteFile = (e) => {
+    if (window.confirm("Do you want to delete file " + FileName + "?")) {
+      deleteFileById(fileData.Id);
+      refreshFolder();
+    }
+  };
   return (
     <div className="folderfile">
       <div className="filename">{fileData.FileName}</div>
@@ -104,7 +114,7 @@ var FolderFile = ({ fileData }) => {
             href={`/fs/downloadFileById?id=${fileData.Id}`}
             target="_blank"
             className=" fa fa-download"
-            download={`${"file1"}`}
+            download={`${fileData.FileName}`}
           >
             Download
           </a>
@@ -119,7 +129,7 @@ var FolderFile = ({ fileData }) => {
                 "Do you want to delete file " + fileData.FileName + "?"
               )
             ) {
-              // todo delete file
+              deleteFile();
             } else {
             }
           }}
@@ -151,5 +161,6 @@ const mapDispatchToProps = {
   unsetWait,
   updateProgress,
   unsetProgress,
+  deleteFileById,
 };
 export default connect(mapStateToProps, mapDispatchToProps)(FolderContainer);
