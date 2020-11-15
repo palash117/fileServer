@@ -249,8 +249,8 @@ func StreamUpload(c *websocket.Conn) {
 		if parentID != -1 {
 			filePath = parentFolder.Path + string(os.PathSeparator) + fileData.Name
 		}
-		dao.SaveItem(models.MakeItem(fileData.Name, BASE_FILE_PATH+"/"+
-			fileData.Name, time.Now(), parentID))
+		fmt.Println("using filepath", filePath)
+		dao.SaveItem(models.MakeItem(fileData.Name, filePath, time.Now(), parentID))
 		fmt.Printf("recieved file struct: %v\n", fileData)
 		// ask for data from client
 		c.WriteMessage(1, []byte(SEND_DATA))
