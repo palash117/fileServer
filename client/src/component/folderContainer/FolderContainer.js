@@ -1,10 +1,23 @@
 import React from "react";
 import createAndRunSm from "../../uploadlogic/uploadsm";
 import UploadIcon from "../icons/UploadIcon";
+import {
+  setWait,
+  unsetWait,
+  updateProgress,
+  unsetProgress,
+} from "../../actions/wait";
 import { closeFolder, selectFolder } from "../../actions/folderData";
 import { connect } from "react-redux";
 
-const FolderContainer = ({ folderDataState, closeFolder }) => {
+const FolderContainer = ({
+  folderDataState,
+  closeFolder,
+  setWait,
+  unsetWait,
+  updateProgress,
+  unsetProgress,
+}) => {
   const { showFolderContainer, folderData, childrenFiles, loading } =
     folderDataState == null ? {} : folderDataState;
   console.log("folderDataState is ", folderDataState);
@@ -32,15 +45,15 @@ const FolderContainer = ({ folderDataState, closeFolder }) => {
     createAndRunSm(
       files,
       (fileName, index) => {
-        // setWait(fileName, index, files.length);
+        setWait(fileName, index, files.length);
       },
       () => {
-        // unsetWait();
-        // unsetProgress();
+        unsetWait();
+        unsetProgress();
         // getPaginatedFiles();
       },
       (progress) => {
-        // updateProgress(progress);
+        updateProgress(progress);
       },
       folderData.Id
     );
@@ -131,5 +144,12 @@ const mapStateToProps = (reduxState) => ({
   folderDataState: reduxState.folderData,
 });
 
-const mapDispatchToProps = { closeFolder, selectFolder };
+const mapDispatchToProps = {
+  closeFolder,
+  selectFolder,
+  setWait,
+  unsetWait,
+  updateProgress,
+  unsetProgress,
+};
 export default connect(mapStateToProps, mapDispatchToProps)(FolderContainer);

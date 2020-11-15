@@ -14,7 +14,7 @@ function App() {
       <Fragment>
         {/* <Alert /> */}
         <MainContianer />
-        {/* <WaitContianer /> */}
+        <WaitContianer />
       </Fragment>
     </Provider>
   );
