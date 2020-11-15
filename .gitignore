@@ -3,3 +3,4 @@
 __debug_bin
 node_modules/
 .cache
+./client/node_modules

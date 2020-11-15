@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fileServer/dao"
 	"fileServer/dto"
 	"fileServer/service"
 	"fmt"
@@ -35,16 +34,21 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	service.UploadFileAndsaveToDb(w, r)
 }
 
+func CreateFolder(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Folder Create Endpoint Hit")
+	service.CreateFolder(w, r)
+}
+
 func Health(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, "file server is up")
 }
 
 func GetPaginatedItems(w http.ResponseWriter, r *http.Request) {
-	data := dao.GetItemsPaginated(0, 0)
-	w.Header().Add("ContentType", "Application/Json")
-	w.WriteHeader(http.StatusOK)
-	jsonDto, _ := json.Marshal(data)
-	w.Write(jsonDto)
+	service.GetPaginatedItems(w, r)
+}
+
+func GetFilesByParentId(w http.ResponseWriter, r *http.Request) {
+	service.GetFilesByParentId(w, r)
 }
 
 func DownloadFileById(w http.ResponseWriter, r *http.Request) {

@@ -15,18 +15,20 @@ var (
 )
 
 const (
-	BASE_PATH           = "/fs"
-	ADD_FILE_PATH       = "/addFile"
-	HEALTH              = "/health"
-	UPLOAD_FILE_PATH    = "/uploadFile"
-	GET_PAGINATED_PATH  = "/getPaginated"
-	DOWNLOAD_FILE_BY_ID = "/downloadFileById"
-	HOME                = "/home"
-	SERVE               = "/serve/"
-	DELETE_FILE_BY_ID   = "/deleteFileById"
-	PART_FILE_UPLOAD    = "/PartUpload"
-	LOCAL_IP            = "/localIp"
-	FILE_SAVE_TEST      = "/fileSaveTest"
+	BASE_PATH              = "/fs"
+	ADD_FILE_PATH          = "/addFile"
+	HEALTH                 = "/health"
+	UPLOAD_FILE_PATH       = "/uploadFile"
+	GET_PAGINATED_PATH     = "/getPaginated"
+	DOWNLOAD_FILE_BY_ID    = "/downloadFileById"
+	HOME                   = "/home"
+	SERVE                  = "/"
+	DELETE_FILE_BY_ID      = "/deleteFileById"
+	PART_FILE_UPLOAD       = "/PartUpload"
+	LOCAL_IP               = "/localIp"
+	FILE_SAVE_TEST         = "/fileSaveTest"
+	CREATE_FOLDER          = "/createfolder"
+	GET_FILES_BY_PARENT_ID = "/getFilesByParentId"
 )
 
 type handler struct {
@@ -54,6 +56,10 @@ func Start() {
 
 	http.Handle(BASE_PATH+DELETE_FILE_BY_ID, handler{DELETE_FILE_BY_ID, controller.DeleteFileById})
 
+	http.Handle(BASE_PATH+CREATE_FOLDER, handler{CREATE_FOLDER, controller.CreateFolder})
+
+	http.Handle(BASE_PATH+GET_FILES_BY_PARENT_ID, handler{GET_FILES_BY_PARENT_ID, controller.GetFilesByParentId})
+
 	partUploadFunction := wrappercontroller.WrapWithConcurrencyLimiter(uploadRateLimiter, controller.PartUpload)
 	http.Handle(BASE_PATH+PART_FILE_UPLOAD, handler{PART_FILE_UPLOAD, partUploadFunction})
 
@@ -61,12 +67,17 @@ func Start() {
 
 	http.Handle(BASE_PATH+FILE_SAVE_TEST, handler{FILE_SAVE_TEST, controller.FileSaveTest})
 
-	http.Handle(SERVE, http.StripPrefix(SERVE, http.FileServer(http.Dir("./web"))))
+	http.Handle(SERVE,
+		// http.StripPrefix(
+		// SERVE,
+		http.FileServer(http.Dir("./client/build")))
+	// )
 	path, errx := os.Getwd()
 	if errx != nil {
 		fmt.Printf("error getting working path, %v\n", errx)
 	}
 	fmt.Printf("working path, %v\n", path)
+	fmt.Printf("listening on port %v", PORT)
 	err := http.ListenAndServe(PORT, nil)
 	if err != nil {
 		fmt.Printf("error starting listenAndServe, %v\n", err)

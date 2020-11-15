@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"fileServer/dao"
 	"fileServer/dto"
 	"fileServer/models"
@@ -22,19 +23,99 @@ var (
 )
 
 func UploadFileAndsaveToDb(w http.ResponseWriter, r *http.Request) {
-	fileName, filePath, err := saveDataToFile(w, r)
+	fileName, filePath, parentID, err := saveDataToFile(w, r)
 	if err != nil {
 		fmt.Println(err)
 		fmt.Fprint(w, []byte("failure"))
 	} else {
-		item := (models.MakeItem(fileName, filePath, time.Now()))
+		item := (models.MakeItem(fileName, filePath, time.Now(), parentID))
 		dao.SaveItem(item)
 		fmt.Fprint(w, []byte("success"))
 	}
 
 }
 
-func saveDataToFile(w http.ResponseWriter, r *http.Request) (fileName string, filePath string, retErr error) {
+func CreateFolder(w http.ResponseWriter, r *http.Request) {
+	folderName := getFolderName(w, r)
+	if folderName == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("folderName missing"))
+		return
+	}
+	folderNamePresent := checkIfFolderIsPresent(folderName)
+	if folderNamePresent {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("folderName already present " + folderName))
+		return
+	}
+	folderPath, err := createFolder(folderName)
+	if err != nil {
+
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("error creating folderName, " + err.Error()))
+	} else {
+		folderItem := models.MakeFolder(folderName, folderPath, time.Now())
+		dao.SaveItem(folderItem)
+		w.WriteHeader(http.StatusOK)
+		jsonData, _ := json.Marshal(folderItem)
+		w.Write(jsonData)
+	}
+}
+
+// func DeleteFolder(w http.ResponseWriter, r *http.Request) {
+// 	folderName := getFolderName(w, r)
+
+// 	if folderName == "" {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		w.Write([]byte("folderName missing"))
+// 		return
+
+// 	}
+// 	folderNamePresent := checkIfFolderIsPresent(folderName)
+
+// 	if !folderNamePresent {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		w.Write([]byte("folderName not present " + folderName))
+// 		return
+// 	}
+
+// 	go deleteFolder(folderName)
+
+// 	w.WriteHeader(http.StatusOK)
+// 	w.Write([]byte("folder marked for deletion " + folderName))
+// 	return
+// }
+
+// func deleteFolder(folderName string) {
+
+// 	folderPath := BASE_FILE_PATH + string(os.PathSeparator) + folderName
+
+// }
+
+func createFolder(folderName string) (folderPath string, err error) {
+	folderPath = BASE_FILE_PATH + string(os.PathSeparator) + folderName
+	err = os.Mkdir(folderPath, os.ModeDir)
+	return folderPath, err
+}
+
+func checkIfFolderIsPresent(folderName string) bool {
+	_, err := os.OpenFile(BASE_FILE_PATH+string(os.PathSeparator)+folderName, os.O_RDONLY, os.ModeDir)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+func getFolderName(w http.ResponseWriter, r *http.Request) string {
+	return r.URL.Query()["folderName"][0]
+}
+
+func saveDataToFile(w http.ResponseWriter, r *http.Request) (fileName string, filePath string, parentID int, retErr error) {
+
+	parentID = -1
+	if r.URL.Query()["parentId"] != nil {
+		parentID, _ = strconv.Atoi(r.URL.Query()["parentId"][0])
+	}
 	// Parse our multipart form, 10 << 20 specifies a maximum
 	// upload of 10 MB files.
 	r.ParseMultipartForm(10 << 20)
@@ -90,9 +171,9 @@ func DownloadFileById(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		io.WriteString(w, err.Error())
 		return
-	} else {
-		item = dao.GetItemById(id)
 	}
+	item = dao.GetItemById(id)
+
 	r.URL.Path = item.Path
 	file, err2 := os.Open(item.Path)
 	if err2 != nil {
@@ -112,6 +193,7 @@ func DownloadFileById(w http.ResponseWriter, r *http.Request) {
 func DeleteFileById(w http.ResponseWriter, r *http.Request) {
 	id, idRequestError := strconv.Atoi(r.URL.Query()["id"][0])
 	if idRequestError != nil {
+		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprint(w, []byte("file not found"))
 	}
 	item := dao.GetItemById(id)
@@ -119,10 +201,13 @@ func DeleteFileById(w http.ResponseWriter, r *http.Request) {
 		if !item.DeletedAt.Valid {
 			dao.UpdateDeletedTime(item)
 			deleteFile(item.Path)
+			w.WriteHeader(http.StatusOK)
 
+			fmt.Fprint(w, []byte(""))
 		}
 	} else {
 
+		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprint(w, []byte("file not found"))
 	}
 }
@@ -139,40 +224,60 @@ func deleteFile(path string) {
 }
 
 func StreamUpload(c *websocket.Conn) {
-	var fileData dto.Filestruct
-	c.ReadJSON(&fileData)
-	//defer close connection
-	defer c.Close()
-	// create db entry
-	dao.SaveItem(models.MakeItem(fileData.Name, BASE_FILE_PATH+"/"+
-		fileData.Name, time.Now()))
-	fmt.Printf("recieved file struct: %v\n", fileData)
-	// ask for data from client
+	var multpiplefilesData dto.MultipleFilesData
+	c.ReadJSON(&multpiplefilesData)
+
+	parentID := multpiplefilesData.ParentID
+
+	fmt.Println("multipleFilesData json is ", multpiplefilesData)
+
 	c.WriteMessage(1, []byte(SEND_DATA))
-	// get bytes in batches
-	byteCount := int(0)
-	fileSize := fileData.Size
-	for byteCount < fileData.Size {
-		_, message, messageRetrievalError := c.ReadMessage()
-		if messageRetrievalError != nil {
-			fmt.Printf("error :%v\n", messageRetrievalError)
-		}
-		filePath := BASE_FILE_PATH + string(os.PathSeparator) + fileData.Name
-		// save batches to file
-		appendError := AppendToFile(&message, filePath)
-		if appendError != nil {
-			fmt.Printf("error while appending data to file %v\n", appendError)
-		}
-
-		// update client to send more
-		// time.Sleep(10 * time.Second)
-		c.WriteMessage(websocket.TextMessage, SEND_DATA)
-		byteCount += len(message)
-		percentage := (byteCount * 100) / fileData.Size
-		fmt.Printf("recieved percentage %d %% , %d out of %d \n", percentage, byteCount, fileSize)
+	var parentFolder *models.Item
+	if parentID != -1 {
+		parentFolder = dao.GetItemById(parentID)
 	}
-	fmt.Printf("file upload complete ")
 
+	defer c.Close()
+	for count := 0; count < multpiplefilesData.NoOfFiles; count++ {
+
+		var fileData dto.Filestruct
+		c.ReadJSON(&fileData)
+		//defer close connection
+		// create db entry
+
+		filePath := BASE_FILE_PATH + string(os.PathSeparator) + fileData.Name
+		if parentID != -1 {
+			filePath = parentFolder.Path + string(os.PathSeparator) + fileData.Name
+		}
+		fmt.Println("using filepath", filePath)
+		dao.SaveItem(models.MakeItem(fileData.Name, filePath, time.Now(), parentID))
+		fmt.Printf("recieved file struct: %v\n", fileData)
+		// ask for data from client
+		c.WriteMessage(1, []byte(SEND_DATA))
+		// get bytes in batches
+		byteCount := int(0)
+		fileSize := fileData.Size
+		for byteCount < fileData.Size {
+			_, message, messageRetrievalError := c.ReadMessage()
+			if messageRetrievalError != nil {
+				fmt.Printf("error :%v\n", messageRetrievalError)
+			}
+			// save batches to file
+			appendError := AppendToFile(&message, filePath)
+			if appendError != nil {
+				fmt.Printf("error while appending data to file %v\n", appendError)
+			}
+
+			// update client to send more
+			// time.Sleep(10 * time.Second)
+			c.WriteMessage(websocket.TextMessage, SEND_DATA)
+			byteCount += len(message)
+			percentage := (byteCount * 100) / fileData.Size
+			fmt.Printf("recieved percentage %d %% , %d out of %d \n", percentage, byteCount, fileSize)
+		}
+		fmt.Printf("file upload complete ")
+	}
+	fmt.Println("all files upload complete")
 	// on completion update db entry as completed
 	// send message completed to client
 }
@@ -214,4 +319,71 @@ func FileSaveTest() string {
 		return fmt.Sprintf("Error while removing new file with path , %s, %v", filepath, removeErr)
 	}
 	return fmt.Sprintf("success with filename %s", filepath)
+}
+
+func GetFilesByParentId(w http.ResponseWriter, r *http.Request) {
+	parentID := getParentIDFromRequestURL(r)
+	if parentID == -1 {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	data := dao.GetItemsByParentID(parentID)
+
+	if len(data) == 0 {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	responseData := convertToFileDTO(data)
+
+	responseJson, _ := json.Marshal(responseData)
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(responseJson)
+}
+
+func convertToFileDTO(data []models.Item) []*dto.FilesResponse {
+	var response []*dto.FilesResponse
+	for _, item := range data {
+		var file = new(dto.FilesResponse)
+		file.FileName = item.FileName
+		if len(file.FileName) > 60 {
+			file.FileName = item.FileName[0:30] + "..." + item.FileName[len(item.FileName)-30:len(item.FileName)]
+		}
+		file.CreatedAt = item.CreatedAt.Format(time.RFC3339)
+		file.Id = item.Id
+		file.ParentID = item.ParentId
+		file.IsDir = item.IsDir
+		response = append(response, file)
+	}
+	return response
+}
+
+func getParentIDFromRequestURL(r *http.Request) int {
+
+	parentID := -1
+	if r.URL.Query()["parentID"] != nil {
+		parentID, _ = strconv.Atoi(r.URL.Query()["parentID"][0])
+	}
+	return parentID
+}
+
+func GetPaginatedItems(w http.ResponseWriter, r *http.Request) {
+	pageNo := r.URL.Query().Get("pageNo")
+	pageSize := r.URL.Query().Get("pageSize")
+	var pageNoInt int64
+	var pageSizeInt int64
+	pageNoInt, pageNoErr := strconv.ParseInt(pageNo, 0, 64)
+	if pageNoErr != nil {
+		pageNoInt = 1
+	}
+	pageSizeInt, pageSizeErr := strconv.ParseInt(pageSize, 0, 64)
+	if pageSizeErr != nil {
+		pageSizeInt = 7
+	}
+	data := dao.GetItemsPaginated(pageNoInt, pageSizeInt)
+	response := convertToFileDTO(data)
+	w.Header().Add("ContentType", "Application/Json")
+	w.WriteHeader(http.StatusOK)
+	jsonDto, _ := json.Marshal(response)
+	w.Write(jsonDto)
 }

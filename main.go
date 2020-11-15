@@ -18,6 +18,7 @@ func main() {
 		}
 	}()
 	fmt.Println("main done")
+
 	dao.ReadyDb()
 	router.Start()
 }
