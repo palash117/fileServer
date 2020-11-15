@@ -4,16 +4,15 @@
   --danger-color: #ff0018;
   --background-color: #6700ff;
 }
-html,
-body {
-  /* min-height: 100%; */
-}
 body {
   height: 100vh;
 }
 * {
+  /* border: 2px solid black; */
   box-sizing: border-box;
+  /* cursor: none; */
 }
+
 body {
   position: relative;
   /* margin-top: none; */
@@ -313,9 +312,12 @@ body {
 }
 
 .folderfile {
+  align-self: center;
+  justify-self: center;
   width: 200px;
   height: 200px;
   margin: 10px;
-  border: 2px solid black;
+  border: 2px dashed black;
+  padding: 5px;
   border-radius: 10px;
 }

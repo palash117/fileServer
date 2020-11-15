@@ -3,8 +3,8 @@ import uploadIcon from "../../images/uploadIcon.png";
 //uploadIcon.png
 
 function UploadIcon({ size }) {
-  var width = 200;
-  var height = 200;
+  var width = 100;
+  var height = 100;
   if (size && size == "small") {
     width = 50;
     height = 50;
