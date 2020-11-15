@@ -74,7 +74,7 @@ const FolderContainer = ({
             {/* <p>add</p> */}
           </label>
           <div className="foldernamevalue">
-            <p>folder1</p>
+            <p>{folderData.FileName}</p>
           </div>
           <div className="closefolder" onClick={close}>
             <p>x</p>

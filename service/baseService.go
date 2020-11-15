@@ -171,9 +171,9 @@ func DownloadFileById(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		io.WriteString(w, err.Error())
 		return
-	} else {
-		item = dao.GetItemById(id)
 	}
+	item = dao.GetItemById(id)
+
 	r.URL.Path = item.Path
 	file, err2 := os.Open(item.Path)
 	if err2 != nil {
