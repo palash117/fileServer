@@ -75,7 +75,8 @@ const FolderContainer = ({
       (progress) => {
         updateProgress(progress);
       },
-      folderData.Id
+      folderData.Id,
+      setAlert
     );
   };
   var refresh = () => {

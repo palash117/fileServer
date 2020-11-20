@@ -11,7 +11,8 @@ const createAndRunSm = async (
   before_func,
   after_func,
   progress_func,
-  parentID
+  parentID,
+  onErrorFunc
 ) => {
   let ip = await getOriginIp();
   console.log(before_func);
@@ -23,7 +24,8 @@ const createAndRunSm = async (
     before_func,
     after_func,
     progress_func,
-    parentID
+    parentID,
+    onErrorFunc
   ).transition();
 };
 class Sm {
@@ -34,7 +36,8 @@ class Sm {
     before_func,
     after_func,
     progress_func,
-    parentID
+    parentID,
+    onErrorFunc
   ) {
     this.states = {
       READY: "READY",
@@ -55,6 +58,7 @@ class Sm {
       NO_EVENT: "NO_EVENT",
       READ_MORE: "READ_MORE",
     };
+    this.onErrorFunc = onErrorFunc ? onErrorFunc : () => {};
     this.parentID = parentID;
     this.before_func = before_func;
     this.after_func = after_func;
@@ -160,6 +164,11 @@ class Sm {
     this.progress_func(0);
     this.current_state = this.states.WRITE_FILE_META;
     this.event = this.events.NO_EVENT;
+    if (this.currentFile.size === 0) {
+      this.onErrorFunc("size 0, " + `${JSON.stringify(this.currentFile)}`);
+      this.after_func();
+      return;
+    }
     this.filemeta = {
       name: this.currentFile.name,
       size: this.currentFile.size,
