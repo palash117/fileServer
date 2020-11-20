@@ -268,7 +268,7 @@ func StreamUpload(c *websocket.Conn) {
 		// ask for data from client
 		c.WriteMessage(1, []byte(SEND_DATA))
 		// get bytes in batches
-		byteCount := int(0)
+		byteCount := int64(0)
 		fileSize := fileData.Size
 		for byteCount < fileData.Size {
 			_, message, messageRetrievalError := c.ReadMessage()
@@ -284,7 +284,7 @@ func StreamUpload(c *websocket.Conn) {
 			// update client to send more
 			// time.Sleep(10 * time.Second)
 			c.WriteMessage(websocket.TextMessage, SEND_DATA)
-			byteCount += len(message)
+			byteCount += int64(len(message))
 			percentage := (byteCount * 100) / fileData.Size
 			fmt.Printf("recieved percentage %d %% , %d out of %d \n", percentage, byteCount, fileSize)
 		}

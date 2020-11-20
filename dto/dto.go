@@ -10,7 +10,7 @@ type BaseDto struct {
 
 type Filestruct struct {
 	Name string `json:"name"`
-	Size int    `json:"size"`
+	Size int64  `json:"size"`
 }
 
 type FilesResponse struct {
