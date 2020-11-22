@@ -50,7 +50,7 @@ func GetItemsPaginated(pageNo int64, pageSize int64) []models.Item {
 func GetItemById(id int) *models.Item {
 
 	item := models.Item{}
-	dbInst.First(&item, id)
+	dbInst.Where("id=?", id).First(&item)
 	return &item
 }
 
@@ -59,7 +59,7 @@ func UpdateDeletedTime(item *models.Item) {
 		Valid: true,
 		Time:  time.Now(),
 	}
-	dbInst.Model(&item).Updates(models.Item{DeletedAt: deletedAt})
+	dbInst.Model(item).Update("deleted_at", deletedAt)
 }
 
 func TestUpdateDeletedTime(t *testing.T) {

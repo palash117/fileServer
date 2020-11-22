@@ -49,6 +49,10 @@ export var createFolder = (foldername, parentID) => async (dispatch) => {
 };
 
 export var refreshFolder = (folder) => async (dispatch) => {
+  // console.log("dispatch", dispatch);
+  if (folder === null) {
+    return;
+  }
   let response = await Axios.get(
     `/fs/getFilesByParentId?parentID=${folder.Id}`
   );

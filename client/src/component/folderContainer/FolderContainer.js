@@ -139,7 +139,7 @@ var FolderFile = ({ fileData, deleteFileById, refresh, selectFolder }) => {
       window.confirm("Do you want to delete file " + fileData.FileName + "?")
     ) {
       deleteFileById(fileData.Id);
-      refresh();
+      // refresh();
     }
   };
   var openf = () => {

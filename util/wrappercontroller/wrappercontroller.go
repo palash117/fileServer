@@ -14,7 +14,7 @@ func WrapWithConcurrencyLimiter(rl rate_limiter.RateLimiter, innerFunc WrappedHa
 		fmt.Println(rl.Status())
 		if rl.GetToken() {
 			innerFunc(w, r)
-			rl.ReturnToken()
+			defer rl.ReturnToken()
 		} else {
 			w.Write([]byte("Try again after some time"))
 		}
