@@ -5,6 +5,7 @@ import (
 	"fileServer/dao"
 	"fileServer/dto"
 	"fileServer/models"
+	"fileServer/processors/deleteProcessor"
 	"fileServer/util"
 	"fmt"
 	"io"
@@ -200,7 +201,6 @@ func DownloadFileById(w http.ResponseWriter, r *http.Request) {
 	}
 	fi, err := file.Stat()
 	w.Header().Add("Content-Length", fmt.Sprintf("%v", fi.Size()))
-
 	w.Header().Add("ContentType", util.MIME_MAP[fileExtn])
 	io.Copy(w, file)
 
@@ -215,10 +215,8 @@ func DeleteFileById(w http.ResponseWriter, r *http.Request) {
 	item := dao.GetItemById(id)
 	if item != nil {
 		if !item.DeletedAt.Valid {
-			dao.UpdateDeletedTime(item)
-			deleteFile(item.Path)
+			deleteProcessor.AddToDeleteChan(item)
 			w.WriteHeader(http.StatusOK)
-
 			fmt.Fprint(w, []byte(""))
 		}
 	} else {
@@ -228,16 +226,17 @@ func DeleteFileById(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func deleteFile(path string) {
-	// delete file
-	var err = os.Remove(path)
-	if err != nil {
-		fmt.Println("error while deleting file " + path)
-		return
-	}
+// todo delete
+// func deleteFile(path string) {
+// 	// delete file
+// 	var err = os.Remove(path)
+// 	if err != nil {
+// 		fmt.Println("error while deleting file " + path)
+// 		return
+// 	}
 
-	fmt.Println("==> done deleting file")
-}
+// 	fmt.Println("==> done deleting file")
+// }
 
 func StreamUpload(c *websocket.Conn) {
 	var multpiplefilesData dto.MultipleFilesData

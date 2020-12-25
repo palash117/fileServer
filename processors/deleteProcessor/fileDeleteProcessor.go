@@ -1,47 +1,134 @@
 package deleteProcessor
 
-import "fileServer/models"
+import (
+	"fileServer/dao"
+	"fileServer/models"
+	"fmt"
+	"os"
+	"sync"
+)
 
-var fileToDeleteChan chan *models.Item
+type Deletable interface {
+	GetItem() *models.Item
+	MarkDone()
+}
+
+type DeleteItem struct {
+	item *models.Item
+	wg   *sync.WaitGroup
+}
+
+func (d *DeleteItem) GetItem() *models.Item {
+	return d.item
+}
+
+func (d *DeleteItem) MarkDone() {
+	if d.wg != nil {
+		d.wg.Done()
+	}
+}
+
+var fileToDeleteChan chan Deletable
 
 const (
 	workForce = 10
 )
 
-func worker() {
+func worker(id int) {
 	for {
 		file := <-fileToDeleteChan
-		deleteFileOrFolder(file)
+		// fmt.Printf("worker %d picked item %+v, wg %+v\n", id, file.(*DeleteItem).item.Id, file.(*DeleteItem).wg)
+		// fmt.Printf("worker %d picked item %+v,\n", id, file.(*DeleteItem).item.Id)
+		go deleteFileOrFolder(file)
 	}
 
 }
 
 func initWorkers() {
 	for i := 0; i < workForce; i++ {
-		go worker()
+		go worker(i)
 	}
 }
 
 func init() {
-	fileToDeleteChan = make(chan *models.Item, 50)
+	fileToDeleteChan = make(chan Deletable, 50)
 	initWorkers()
+
 }
 
-func AddToDeleteChan(file *models.Item) {
-	fileToDeleteChan <- file
+func AddToDeleteChan(item *models.Item) {
+
+	if item == nil {
+		return
+	}
+
+	df := &DeleteItem{item, nil}
+	fileToDeleteChan <- df
 }
 
-func deleteFileOrFolder(file *models.Item) {
-	if file.IsDir {
-		deleteFile(file)
+func deleteFileOrFolder(df Deletable) {
+	if df == nil {
+		return
+	}
+
+	if df.GetItem().IsDir {
+		deleteFolder(df)
 	} else {
-		deleteFolder(file)
+		deleteFile(df)
 	}
 }
 
-func deleteFolder(file *models.Item) {
+func deleteFolder(df Deletable) {
+	if df == nil {
+		return
+	}
 
+	children := GetChilderenFiles(df)
+	if children != nil && len(children) != 0 {
+
+		cwg := &sync.WaitGroup{}
+		cwg.Add(len(children))
+		for _, child := range children {
+			cp := *&child
+			fileToDeleteChan <- &DeleteItem{item: &cp, wg: cwg}
+		}
+		cwg.Wait()
+	}
+	dbDelete(df.GetItem())
+	osDelete(df.GetItem())
+	df.MarkDone()
 }
-func deleteFile(file *models.Item) {
+func deleteFile(df Deletable) {
+	if df == nil {
+		return
+	}
+	dbDelete(df.GetItem())
+	osDelete(df.GetItem())
+	df.MarkDone()
+}
 
+var dbDelete = func(item *models.Item) {
+
+	if item == nil {
+		return
+	}
+	dao.UpdateDeletedTime(item)
+}
+
+var osDelete = func(item *models.Item) {
+	if item == nil {
+		return
+	}
+	path := item.Path
+	var err = os.Remove(path)
+	if err != nil {
+		fmt.Println("error while deleting file " + path)
+		return
+	}
+
+	fmt.Println("==> done deleting file")
+}
+
+var GetChilderenFiles = func(df Deletable) []models.Item {
+	return dao.GetItemsByParentID(df.GetItem().Id)
 }
