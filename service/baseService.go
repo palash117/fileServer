@@ -198,6 +198,9 @@ func DownloadFileById(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, fileExntError.Error())
 		return
 	}
+	fi, err := file.Stat()
+	w.Header().Add("Content-Length", fmt.Sprintf("%v", fi.Size()))
+
 	w.Header().Add("ContentType", util.MIME_MAP[fileExtn])
 	io.Copy(w, file)
 
