@@ -277,13 +277,15 @@ body {
   text-align: center;
   margin-top: 10px;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: column;
+
+  /* justify-content: space-between; */
 }
 
 .folderactions {
   display: flex;
-  flex-direction: row;
+  flex-direction: row-reverse;
+  /* flex-flow: ; */
 }
 
 .addtofolder {
@@ -312,7 +314,7 @@ body {
   margin: 10px;
   border: 1px solid black;
   width: 50px;
-  /* height: 20px; */
+  position: absolute;
   display: flex;
   justify-content: center;
   text-align: center;
