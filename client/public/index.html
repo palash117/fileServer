@@ -25,6 +25,30 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker
+            .register("worker.js")
+            .then(
+              function (registration) {
+                console.log(
+                  "Worker registration successful",
+                  registration.scope
+                );
+              },
+              function (err) {
+                console.log("Worker registration failed", err);
+              }
+            )
+            .catch(function (err) {
+              console.log(err);
+            });
+        });
+      } else {
+        console.log("Service Worker is not supported by browser.");
+      }
+    </script>
     <div id="root">
       <div class="container">
         <div class="subContiner">
@@ -38,23 +62,15 @@
           <div class="filelist">
             <table class="filelisttable">
               <thead class="filelistheader">
-                <th class="filelistheader cell">
-                  filename
-                </th>
+                <th class="filelistheader cell">filename</th>
 
-                <td class="filelistheader cell">
-                  uploaded on
-                </td>
+                <td class="filelistheader cell">uploaded on</td>
 
-                <td class="filelistheader cell">
-                  actions
-                </td>
+                <td class="filelistheader cell">actions</td>
               </thead>
               <tbody>
                 <tr class="filerow">
-                  <td class="cell filename">
-                    aaaaaaa
-                  </td>
+                  <td class="cell filename">aaaaaaa</td>
                   <td class="cell uploadeddate">12-10-19</td>
                   <td class="cell actions">
                     <div class="downloaddiv fa fa-download">
@@ -66,9 +82,7 @@
                   </td>
                 </tr>
                 <tr class="filerow">
-                  <td class="cell filename">
-                    sssssssssssdfasdfasdfasdfasdf1
-                  </td>
+                  <td class="cell filename">sssssssssssdfasdfasdfasdfasdf1</td>
                   <td class="cell uploadeddate">12-10-19</td>
                   <td class="cell actions">
                     <div class="downloaddiv fa fa-download">
@@ -80,9 +94,7 @@
                   </td>
                 </tr>
                 <tr class="filerow">
-                  <td class="cell filename">
-                    sssssssssssdfasdfasdfasdfasdf1
-                  </td>
+                  <td class="cell filename">sssssssssssdfasdfasdfasdfasdf1</td>
                   <td class="cell uploadeddate">12-10-19</td>
                   <td class="cell actions">
                     <div class="downloaddiv fa fa-download">
@@ -94,9 +106,7 @@
                   </td>
                 </tr>
                 <tr class="filerow">
-                  <td class="cell filename">
-                    sssssssssssdfasdfasdfasdfasdf1
-                  </td>
+                  <td class="cell filename">sssssssssssdfasdfasdfasdfasdf1</td>
                   <td class="cell uploadeddate">12-10-19</td>
                   <td class="cell actions">
                     <div class="downloaddiv fa fa-download">
@@ -108,9 +118,7 @@
                   </td>
                 </tr>
                 <tr class="filerow">
-                  <td class="cell filename">
-                    sssssssssssdfasdfasdfasdfasdf1
-                  </td>
+                  <td class="cell filename">sssssssssssdfasdfasdfasdfasdf1</td>
                   <td class="cell uploadeddate">12-10-19</td>
                   <td class="cell actions">
                     <div class="downloaddiv fa fa-download">
@@ -122,9 +130,7 @@
                   </td>
                 </tr>
                 <tr class="filerow">
-                  <td class="cell filename">
-                    sssssssssssdfasdfasdfasdfasdf1
-                  </td>
+                  <td class="cell filename">sssssssssssdfasdfasdfasdfasdf1</td>
                   <td class="cell uploadeddate">12-10-19</td>
                   <td class="cell actions">
                     <div class="downloaddiv fa fa-download">
@@ -136,9 +142,7 @@
                   </td>
                 </tr>
                 <tr class="filerow">
-                  <td class="cell filename">
-                    sssssssssssdfasdfasdfasdfasdf1
-                  </td>
+                  <td class="cell filename">sssssssssssdfasdfasdfasdfasdf1</td>
                   <td class="cell uploadeddate">12-10-19</td>
                   <td class="cell actions">
                     <div class="downloaddiv fa fa-download">
@@ -156,9 +160,7 @@
             <div class="prev">
               <i class="fa fa-arrow-left fa-2x"></i>
             </div>
-            <div class="pageno">
-              5
-            </div>
+            <div class="pageno">5</div>
             <div class="next">
               <i class="fa fa-arrow-right fa-2x"></i>
             </div>
@@ -168,9 +170,7 @@
       <div class="waitcontiainer">
         <div class="waitsubcontianer">
           <div class="lds-dual-ring"></div>
-          <span class="waitMessage">
-            PLEASE WAIT
-          </span>
+          <span class="waitMessage"> PLEASE WAIT </span>
           <div class="statusbar">
             <div class="statusCompleted"></div>
             <div class="statusPending"></div>

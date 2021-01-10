@@ -2,6 +2,7 @@ import React from "react";
 import createAndRunSm from "../../uploadlogic/uploadsm";
 import UploadIcon from "../icons/UploadIcon";
 import CreateFolderIcon from "../icons/CreateFolderIcon";
+import RefreshIcon from "../icons/RefreshIcon";
 // import { createFolder } from "../../actions/folderData";
 import {
   setWait,
@@ -102,7 +103,7 @@ const FolderContainer = ({
               <CreateFolderIcon size={"small"}></CreateFolderIcon>
             </div>
             <div className="refreshFolder" onClick={refresh}>
-              <p>refresh</p>
+              <RefreshIcon size={"small"}></RefreshIcon>
             </div>
           </div>
           <div className="foldernamevalue">
