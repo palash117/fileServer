@@ -152,7 +152,7 @@ var FolderFile = ({ fileData, deleteFileById, refresh, selectFolder }) => {
   return (
     <div className="folderfile">
       <div className="filename" onClick={openf}>
-        {fileData.Display}
+        {fileData.DisplayName}
       </div>
       <div className="filetype">{fileData.IsDir ? "folder" : "file"}</div>
       {!fileData.IsDir && (
