@@ -361,8 +361,9 @@ func convertToFileDTO(data []models.Item) []*dto.FilesResponse {
 	for _, item := range data {
 		var file = new(dto.FilesResponse)
 		file.FileName = item.FileName
+		file.DisplayName = item.FileName
 		if len(file.FileName) > 60 {
-			file.FileName = item.FileName[0:30] + "..." + item.FileName[len(item.FileName)-30:len(item.FileName)]
+			file.DisplayName = item.FileName[0:30] + "..." + item.FileName[len(item.FileName)-30:len(item.FileName)]
 		}
 		file.CreatedAt = item.CreatedAt.Format(time.RFC3339)
 		file.Id = item.Id

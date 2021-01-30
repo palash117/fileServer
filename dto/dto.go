@@ -14,6 +14,7 @@ type Filestruct struct {
 }
 
 type FilesResponse struct {
+	DisplayName string
 	FileName  string
 	Id        int
 	CreatedAt string
