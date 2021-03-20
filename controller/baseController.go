@@ -51,6 +51,10 @@ func GetFilesByParentId(w http.ResponseWriter, r *http.Request) {
 	service.GetFilesByParentId(w, r)
 }
 
+func GetFileById(w http.ResponseWriter, r *http.Request) {
+	service.GetFileById(w, r)
+}
+
 func DownloadFileById(w http.ResponseWriter, r *http.Request) {
 	service.DownloadFileById(w, r)
 }

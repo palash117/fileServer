@@ -29,6 +29,7 @@ const (
 	FILE_SAVE_TEST         = "/fileSaveTest"
 	CREATE_FOLDER          = "/createfolder"
 	GET_FILES_BY_PARENT_ID = "/getFilesByParentId"
+	GET_FILE_BY_ID         = "/getFileById"
 )
 
 type handler struct {
@@ -59,6 +60,8 @@ func Start() {
 	http.Handle(BASE_PATH+CREATE_FOLDER, handler{CREATE_FOLDER, controller.CreateFolder})
 
 	http.Handle(BASE_PATH+GET_FILES_BY_PARENT_ID, handler{GET_FILES_BY_PARENT_ID, controller.GetFilesByParentId})
+
+	http.Handle(BASE_PATH+GET_FILE_BY_ID, handler{GET_FILE_BY_ID, controller.GetFileById})
 
 	partUploadFunction := wrappercontroller.WrapWithConcurrencyLimiter(uploadRateLimiter, controller.PartUpload)
 	http.Handle(BASE_PATH+PART_FILE_UPLOAD, handler{PART_FILE_UPLOAD, partUploadFunction})

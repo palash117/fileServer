@@ -356,22 +356,49 @@ func GetFilesByParentId(w http.ResponseWriter, r *http.Request) {
 	w.Write(responseJson)
 }
 
+func GetFileById(w http.ResponseWriter, r *http.Request) {
+	id := getIDFromRequestURL(r)
+
+	if id == -1 {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	data := dao.GetItemById(id)
+
+	if data == nil {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	responseData := convertToFileDTO(data)
+
+	responseJson, _ := json.Marshal(responseData)
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(responseJson)
+}
+
 func convertToFileDTO(data []models.Item) []*dto.FilesResponse {
 	var response []*dto.FilesResponse
 	for _, item := range data {
-		var file = new(dto.FilesResponse)
-		file.FileName = item.FileName
-		file.DisplayName = item.FileName
-		if len(file.FileName) > 60 {
-			file.DisplayName = item.FileName[0:30] + "..." + item.FileName[len(item.FileName)-30:len(item.FileName)]
-		}
-		file.CreatedAt = item.CreatedAt.Format(time.RFC3339)
-		file.Id = item.Id
-		file.ParentID = item.ParentId
-		file.IsDir = item.IsDir
-		response = append(response, file)
+		response = append(response, convertToFileDTOSingle(item))
 	}
 	return response
+}
+
+func convertToFileDTOSingle(item models.Item) *dto.FilesRespons {
+	var file = new(dto.FilesResponse)
+	file.FileName = item.FileName
+	file.DisplayName = item.FileName
+	if len(file.FileName) > 60 {
+		file.DisplayName = item.FileName[0:30] + "..." + item.FileName[len(item.FileName)-30:len(item.FileName)]
+	}
+	file.CreatedAt = item.CreatedAt.Format(time.RFC3339)
+	file.Id = item.Id
+	file.ParentID = item.ParentId
+	file.IsDir = item.IsDir
+	return file
 }
 
 func getParentIDFromRequestURL(r *http.Request) int {
@@ -381,6 +408,15 @@ func getParentIDFromRequestURL(r *http.Request) int {
 		parentID, _ = strconv.Atoi(r.URL.Query()["parentID"][0])
 	}
 	return parentID
+}
+
+func getIDFromRequestURL(r *http.Request) int {
+
+	id := -1
+	if r.URL.Query()["id"] != nil {
+		id, _ = strconv.Atoi(r.URL.Query()["id"][0])
+	}
+	return id
 }
 
 func GetPaginatedItems(w http.ResponseWriter, r *http.Request) {
