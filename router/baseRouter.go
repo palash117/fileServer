@@ -22,7 +22,7 @@ const (
 	GET_PAGINATED_PATH     = "/getPaginated"
 	DOWNLOAD_FILE_BY_ID    = "/downloadFileById"
 	HOME                   = "/home"
-	SERVE                  = "/"
+	SERVE                  = "/serve"
 	DELETE_FILE_BY_ID      = "/deleteFileById"
 	PART_FILE_UPLOAD       = "/PartUpload"
 	LOCAL_IP               = "/localIp"

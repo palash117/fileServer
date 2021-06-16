@@ -14,9 +14,9 @@ import FolderView from "./view/FolderView";
 function App() {
   return (
     <Provider store={store}>
-      <Router >
+      <Router basename="/serve">
       <Switch>
-        <Route path="/" exact="true">
+        <Route path="/">
           <HomeView />
         </Route>
         <Route path="/folder/:id">
