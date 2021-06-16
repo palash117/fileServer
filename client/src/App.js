@@ -16,7 +16,7 @@ function App() {
     <Provider store={store}>
       <Router >
       <Switch>
-        <Route path="/home">
+        <Route path="/" exact="true">
           <HomeView />
         </Route>
         <Route path="/folder/:id">
