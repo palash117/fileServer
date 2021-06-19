@@ -202,8 +202,8 @@ func DownloadFileById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fi, err := file.Stat()
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	// w.Header().Set("Access-Control-Allow-Origin", "*")
+	// w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Add("Content-Length", fmt.Sprintf("%v", fi.Size()))
 	w.Header().Add("ContentType", util.MIME_MAP[fileExtn])
 	io.Copy(w, file)
