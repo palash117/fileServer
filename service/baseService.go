@@ -63,6 +63,8 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 	} else {
 		folderItem := models.MakeFolder(folderName, folderPath, time.Now(), parentID)
 		dao.SaveItem(folderItem)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		w.WriteHeader(http.StatusOK)
 		jsonData, _ := json.Marshal(folderItem)
 		w.Write(jsonData)
@@ -200,6 +202,8 @@ func DownloadFileById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fi, err := file.Stat()
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Add("Content-Length", fmt.Sprintf("%v", fi.Size()))
 	w.Header().Add("ContentType", util.MIME_MAP[fileExtn])
 	io.Copy(w, file)
@@ -216,6 +220,9 @@ func DeleteFileById(w http.ResponseWriter, r *http.Request) {
 	if item != nil {
 		if !item.DeletedAt.Valid {
 			deleteProcessor.AddToDeleteChan(item)
+
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprint(w, []byte(""))
 		}
@@ -352,6 +359,8 @@ func GetFilesByParentId(w http.ResponseWriter, r *http.Request) {
 
 	responseJson, _ := json.Marshal(responseData)
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.WriteHeader(http.StatusOK)
 	w.Write(responseJson)
 }
@@ -399,6 +408,8 @@ func GetPaginatedItems(w http.ResponseWriter, r *http.Request) {
 	data := dao.GetItemsPaginated(pageNoInt, pageSizeInt)
 	response := convertToFileDTO(data)
 	w.Header().Add("ContentType", "Application/Json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.WriteHeader(http.StatusOK)
 	jsonDto, _ := json.Marshal(response)
 	w.Write(jsonDto)

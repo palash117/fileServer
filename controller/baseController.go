@@ -25,6 +25,9 @@ func AddFile(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	dto := dto.BaseDto{msg}
 	jsonDto, _ := json.Marshal(dto)
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Write(jsonDto)
 
 }
