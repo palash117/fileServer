@@ -43,6 +43,9 @@ func CreateFolder(w http.ResponseWriter, r *http.Request) {
 }
 
 func Health(w http.ResponseWriter, req *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	io.WriteString(w, "file server is up")
 }
 
