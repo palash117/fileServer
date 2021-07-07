@@ -6,6 +6,7 @@ import (
 	"log"
 	"testing"
 	"time"
+	"os"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
@@ -13,10 +14,13 @@ import (
 
 var (
 	dbInst *gorm.DB
+	PORT = os.Getenv("FS_PORT")
+	IP   = os.Getenv("FS_IP")
 )
 
+
 func ReadyDb() {
-	db, err := gorm.Open("mysql", "root:root@tcp(192.168.1.27:3306)/fs?charset=utf8&parseTime=True")
+	db, err := gorm.Open("mysql", fmt.Sprintf("root:root@tcp(%s:3306)/fs?charset=utf8&parseTime=True",IP))
 	if err != nil {
 		log.Panic(err)
 	}
