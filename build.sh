@@ -21,4 +21,4 @@ done
 echo "$dockerImageId"
 
 echo "RUNNING DOCKER IMAGE IN HEADLESS MODE"
-docker run -d -p 9010:9010 --name fsa -v /media/pi/sgt1/fileserver:/go/src/fileServer/fileServer ${dockerImageId}
+docker run -d -p 9010:9010 --name fsa -v /media/pi/sgt2/fileserver:/go/src/fileServer/fileServer ${dockerImageId}

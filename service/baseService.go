@@ -193,7 +193,7 @@ func DownloadFileById(w http.ResponseWriter, r *http.Request) {
 	r.URL.Path = item.Path
 	file, err2 := os.Open(item.Path)
 	if err2 != nil {
-
+		fmt.Println(fmt.Sprintf("error while opening file %s",err2))
 	}
 	fileExtn, fileExntError := util.GetFileExtn(item.Path)
 	if fileExntError != nil {
