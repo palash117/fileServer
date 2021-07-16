@@ -191,7 +191,7 @@ func DownloadFileById(w http.ResponseWriter, r *http.Request) {
 	r.URL.Path = item.Path
 	file, err2 := os.Open(item.Path)
 	if err2 != nil {
-
+		fmt.Println(fmt.Sprintf("error while opening file %s",err2))
 	}
 	fileExtn, fileExntError := util.GetFileExtn(item.Path)
 	if fileExntError != nil {
@@ -200,7 +200,11 @@ func DownloadFileById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fi, err := file.Stat()
-	w.Header().Add("Content-Length", fmt.Sprintf("%v", fi.Size()))
+	if fi!=nil{	
+
+		w.Header().Add("Content-Length", fmt.Sprintf("%v", fi.Size()))
+	}
+	w.Header().Add("Content-disposition", fmt.Sprintf("attachment; filename=%s",item.FileName))
 	w.Header().Add("ContentType", util.MIME_MAP[fileExtn])
 	io.Copy(w, file)
 
