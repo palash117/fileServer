@@ -23,6 +23,7 @@ const (
 	DOWNLOAD_FILE_BY_ID    = "/downloadFileById"
 	HOME                   = "/home"
 	SERVE                  = "/"
+	FOLDER                 = "/folder"
 	DELETE_FILE_BY_ID      = "/deleteFileById"
 	PART_FILE_UPLOAD       = "/PartUpload"
 	LOCAL_IP               = "/localIp"
@@ -68,8 +69,8 @@ func Start() {
 	http.Handle(BASE_PATH+FILE_SAVE_TEST, handler{FILE_SAVE_TEST, controller.FileSaveTest})
 
 	http.Handle(SERVE,
-		// http.StripPrefix(
-		// SERVE,
+		http.FileServer(http.Dir("./client/build")))
+	http.Handle(FOLDER,
 		http.FileServer(http.Dir("./client/build")))
 	// )
 	path, errx := os.Getwd()

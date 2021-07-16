@@ -4,6 +4,7 @@ import { deleteFileById } from "../../actions/file";
 import { selectFolder } from "../../actions/folderData";
 import { connect } from "react-redux";
 import file from "../../reducers/file";
+import {Link} from 'react-router-dom'
 
 const FileItem = ({ file, deleteFileById, selectFolder }) => {
   var { FileName, CreatedAt, Id, IsDir, ParentID } = file === null ? {} : file;
@@ -20,8 +21,10 @@ const FileItem = ({ file, deleteFileById, selectFolder }) => {
   };
   return (
     <tr class="filerow">
-      <td class="cell filename" onClick={open}>
+      <td class="cell filename" >
+        <Link to={"folder/"+Id} style={{ textDecoration: 'none',color:'black' }}>
         {FileName}
+        </Link>
       </td>
       <td class="cell uploadeddate">
         <Moment format="DD/MM/YYYY">{CreatedAt}</Moment>

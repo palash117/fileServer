@@ -27,6 +27,25 @@ export var selectFolder = (folder) => async (dispatch) => {
   }
 };
 
+export var selectFolderById = (id) => async (dispatch) => {
+
+  let response = await Axios.get(
+    `/fs/getFilesByParentId?parentID=${id}`
+  );
+
+  if (response.status === 200) {
+    dispatch({
+      type: FOLDER_LOADED,
+      payload: { folderData: {}, childrenFiles: response.data },
+    });
+  } else {
+    dispatch({
+      type: FOLDER_LOADED,
+      payload: { folderData: {}, childrenFiles: [] },
+    });
+  }
+};
+
 export var closeFolder = () => (dispatch) => {
   dispatch({ type: CLOSE_FOLDER });
 };
@@ -48,24 +67,21 @@ export var createFolder = (foldername, parentID) => async (dispatch) => {
   }
 };
 
-export var refreshFolder = (folder) => async (dispatch) => {
+export var refreshFolder = (id) => async (dispatch) => {
   // console.log("dispatch", dispatch);
-  if (folder === null) {
-    return;
-  }
   let response = await Axios.get(
-    `/fs/getFilesByParentId?parentID=${folder.Id}`
+    `/fs/getFilesByParentId?parentID=${id}`
   );
 
   if (response.status === 200) {
     dispatch({
       type: FOLDER_REFRESHED,
-      payload: { folderData: folder, childrenFiles: response.data },
+      payload: { folderData: {}, childrenFiles: response.data },
     });
   } else {
     dispatch({
       type: FOLDER_REFRESHED,
-      payload: { folderData: folder, childrenFiles: [] },
+      payload: { folderData: {}, childrenFiles: [] },
     });
   }
 };
