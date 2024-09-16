@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import createAndRunSm from "../../uploadlogic/uploadsm";
 import UploadIcon from "../icons/UploadIcon";
 import CreateFolderIcon from "../icons/CreateFolderIcon";
 import RefreshIcon from "../icons/RefreshIcon";
 // import { createFolder } from "../../actions/folderData";
+import {Link, useParams} from 'react-router-dom'
+
 import {
   setWait,
   unsetWait,
@@ -13,12 +15,13 @@ import {
 import {
   closeFolder,
   createFolder,
-  selectFolder,
+  selectFolder,selectFolderById,
   refreshFolder,
 } from "../../actions/folderData";
 import { setAlert } from "../../actions/alert";
 import { deleteFileById } from "../../actions/file";
 import { connect } from "react-redux";
+import { useHistory } from "react-router-dom";
 
 const FolderContainer = ({
   folderDataState,
@@ -29,6 +32,7 @@ const FolderContainer = ({
   unsetProgress,
   deleteFileById,
   selectFolder,
+  selectFolderById,
   createFolder,
   setAlert,
   refreshFolder,
@@ -41,15 +45,17 @@ const FolderContainer = ({
     breadCrumb,
   } = folderDataState == null ? {} : folderDataState;
   console.log("folderDataState is ", folderDataState);
-
+  var history = useHistory();
+  console.log("history obj is", history)
   var close = () => {
-    closeFolder();
+    // closeFolder();
+    history.goBack()
   };
 
   var innerCreateFolder = () => {
     var foldername = window.prompt("please enter folder name");
     if (!(foldername == "" || foldername === null)) {
-      createFolder(foldername, folderData.Id);
+      createFolder(foldername, id);
     } else {
       setAlert("please enter a valid foldername!", 2000);
     }
@@ -76,15 +82,20 @@ const FolderContainer = ({
       (progress) => {
         updateProgress(progress);
       },
-      folderData.Id,
+      id,
       setAlert
     );
   };
   var refresh = () => {
     refreshFolder(folderData);
   };
+  var {id}=useParams()
+  useEffect(()=>{
+   
+   selectFolderById(id)
+  },[])
   return (
-    <div className={"folder-container"}>
+    <div className={"folder-container"} key={id}>
       {" "}
       <div className="folder-subcontainer">
         <div className="foldername">
@@ -146,24 +157,24 @@ var FolderFile = ({ fileData, deleteFileById, refresh, selectFolder }) => {
   var openf = () => {
     if (fileData.IsDir) {
       console.log("opening folder");
-      selectFolder(fileData);
+      selectFolderById(fileData.Id);
     }
   };
   return (
     <div className="folderfile">
-      <div className="filename" onClick={openf}>
-        {fileData.DisplayName}
+      <div className="filename" >
+        {fileData.IsDir?<Link to={"/folder/"+fileData.Id} onClick={openf} style={{ textDecoration: 'none',color:'black' }}> {fileData.DisplayName}</Link>: fileData.DisplayName}
       </div>
       <div className="filetype">{fileData.IsDir ? "folder" : "file"}</div>
       {!fileData.IsDir && (
         <div className="filedownload">
-          <a
+          <a 
             href={`/fs/downloadFileById?id=${fileData.Id}`}
-            target="_blank"
+            target="_self"
             className=" fa fa-download"
             download={`${fileData.FileName}`}
           >
-            Download
+            Download now
           </a>
         </div>
       )}
@@ -200,5 +211,6 @@ const mapDispatchToProps = {
   createFolder,
   setAlert,
   refreshFolder,
+  selectFolderById,
 };
 export default connect(mapStateToProps, mapDispatchToProps)(FolderContainer);

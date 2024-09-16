@@ -20,7 +20,7 @@ const MainContainer = ({ getPaginatedFiles, showFolderContainer }) => {
         <FileList />
         <Nav />
       </div>
-      {showFolderContainer && <FolderContainer />}
+      {/* {showFolderContainer && <FolderContainer />} */}
     </div>
   );
 };
