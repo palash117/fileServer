@@ -1,0 +1,32 @@
+
+@media only screen and (max-width: 1120px) {
+  /* For mobile phones: */
+  body {
+    /* width: 100%; */
+    /* background-color: white; */
+  }
+  .add {
+    margin: 10px;
+    padding: 10px;
+  }
+  .uploadicon {
+    transform: scale(0.5);
+    margin: 0;
+    padding: 0;
+  }
+  .filelist {
+    font-size: 90%;
+  }
+  .filename {
+    max-width: 200px;
+  }
+}
+curl 'http://192.168.1.12:9010/fs/getFileInfoById?parentID=2681' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+  -H 'Connection: keep-alive' \
+  -H 'Origin: http://192.168.1.12' \
+  -H 'Referer: http://192.168.1.12/' \
+  -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36' \
+  --insecure
+
